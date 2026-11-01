@@ -1,10 +1,12 @@
 """
-Ultra-Modern Battery and Connection Indicator Badge for ATK Neptune N9.
+Ultra-Modern Battery and Connection Indicator Badge for ATK Neptune N9 with i18n.
 """
 
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QFrame
 from PyQt6.QtCore import Qt, QRectF
 from PyQt6.QtGui import QPainter, QColor, QPen, QBrush, QFont, QLinearGradient
+
+from ui.i18n import I18N
 
 
 class BatteryIconWidget(QWidget):
@@ -26,7 +28,6 @@ class BatteryIconWidget(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-        # Outer battery outline
         body_rect = QRectF(1.5, 3.5, 38, 15)
         cap_rect = QRectF(40.5, 7.5, 2.5, 7)
 
@@ -39,7 +40,6 @@ class BatteryIconWidget(QWidget):
         if not self.connected:
             return
 
-        # Determine gradient colors
         if self.charging:
             c1, c2 = QColor("#00E5FF"), QColor("#0099FF")
         elif self.level > 35:
@@ -49,7 +49,6 @@ class BatteryIconWidget(QWidget):
         else:
             c1, c2 = QColor("#FF3366"), QColor("#D60036")
 
-        # Fill level
         avail_width = body_rect.width() - 4.0
         fill_width = max(0.0, avail_width * (self.level / 100.0))
         if fill_width > 0:
@@ -61,7 +60,6 @@ class BatteryIconWidget(QWidget):
             painter.setBrush(QBrush(grad))
             painter.drawRoundedRect(fill_rect, 2.5, 2.5)
 
-        # Charging bolt
         if self.charging:
             painter.setPen(QPen(QColor("#0E1015"), 1.2))
             painter.setFont(QFont("sans-serif", 9, QFont.Weight.Bold))
@@ -73,35 +71,41 @@ class BatteryStatusWidget(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setStyleSheet("background: transparent; border: none;")
+        self.connected = False
+        self.level = 0
+        self.charging = False
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(10)
 
-        # Latency badge
         self.latency_lbl = QLabel("1000Hz • 2.4G")
         self.latency_lbl.setProperty("class", "badge-latency")
         layout.addWidget(self.latency_lbl)
 
-        # Connection badge
-        self.badge_lbl = QLabel("Bağlantı Aranıyor...")
+        self.badge_lbl = QLabel(I18N.t("searching_device"))
         self.badge_lbl.setProperty("class", "badge-disconnected")
         layout.addWidget(self.badge_lbl)
 
-        # Battery pill icon
         self.icon_widget = BatteryIconWidget()
         layout.addWidget(self.icon_widget)
 
-        # Battery percentage text
         self.text_lbl = QLabel("--%")
         self.text_lbl.setStyleSheet("font-size: 13px; font-weight: 800; color: #FFFFFF; min-width: 38px;")
         layout.addWidget(self.text_lbl)
 
-    def set_status(self, connected: bool, level: int = 0, charging: bool = False):
-        self.icon_widget.update_state(level, charging, connected)
+        I18N.sig_language_changed.connect(lambda: self.retranslate())
 
-        if connected:
-            self.badge_lbl.setText("● Bağlı")
+    def set_status(self, connected: bool, level: int = 0, charging: bool = False):
+        self.connected = connected
+        self.level = level
+        self.charging = charging
+        self.icon_widget.update_state(level, charging, connected)
+        self.retranslate()
+
+    def retranslate(self):
+        if self.connected:
+            self.badge_lbl.setText(I18N.t("connected_badge"))
             self.badge_lbl.setProperty("class", "badge-connected")
             self.badge_lbl.setStyleSheet(
                 "background-color: rgba(0, 245, 160, 0.12); color: #00F5A0; "
@@ -109,10 +113,10 @@ class BatteryStatusWidget(QFrame):
                 "padding: 4px 12px; font-size: 11px; font-weight: 700;"
             )
             self.latency_lbl.show()
-            chg_str = " (⚡)" if charging else ""
-            self.text_lbl.setText(f"%{level}{chg_str}")
+            chg_str = I18N.t("charging_tag") if self.charging else ""
+            self.text_lbl.setText(f"%{self.level}{chg_str}")
         else:
-            self.badge_lbl.setText("○ Bağlantı Yok")
+            self.badge_lbl.setText(I18N.t("disconnected_badge"))
             self.badge_lbl.setProperty("class", "badge-disconnected")
             self.badge_lbl.setStyleSheet(
                 "background-color: rgba(255, 51, 102, 0.12); color: #FF3366; "

@@ -1,6 +1,5 @@
 """
-Modern Audio Effects & Spatial 7.1 Surround Visualizer for ATK Neptune N9.
-Features interactive 7.1 speaker field diagram and stylized voice changer cards.
+Modern Audio Effects & Spatial 7.1 Surround Visualizer for ATK Neptune N9 with i18n support.
 """
 
 from PyQt6.QtWidgets import (
@@ -11,6 +10,7 @@ from PyQt6.QtCore import Qt, pyqtSignal, QRectF, QPointF
 from PyQt6.QtGui import QPainter, QColor, QPen, QBrush, QFont
 
 from ui.components.toggle_switch import ToggleSwitch
+from ui.i18n import I18N
 
 
 class SurroundSpeakerVisualizer(QWidget):
@@ -33,14 +33,12 @@ class SurroundSpeakerVisualizer(QWidget):
         cx = w / 2.0
         cy = h / 2.0
 
-        # Draw outer spatial sound waves
         radius = 46.0
         wave_color = QColor(0, 210, 255, 40) if self.active else QColor(40, 44, 58, 40)
         painter.setPen(QPen(wave_color, 1.2, Qt.PenStyle.DashLine))
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawEllipse(QPointF(cx, cy), radius + 8, radius + 8)
 
-        # Center listener head
         painter.setPen(QPen(QColor("#00D2FF") if self.active else QColor("#5A5E72"), 1.5))
         painter.setBrush(QBrush(QColor("#181924")))
         painter.drawEllipse(QPointF(cx, cy), 14, 14)
@@ -49,7 +47,6 @@ class SurroundSpeakerVisualizer(QWidget):
         painter.setFont(QFont("sans-serif", 8, QFont.Weight.Bold))
         painter.drawText(QRectF(cx - 14, cy - 14, 28, 28), Qt.AlignmentFlag.AlignCenter, "🎧")
 
-        # 7.1 Speaker positions (FL, C, FR, SL, SR, RL, RR, LFE)
         speakers = [
             ("FL", cx - 36, cy - 30),
             ("C",  cx,      cy - 40),
@@ -96,20 +93,19 @@ class EffectsWidget(QFrame):
 
         top_row = QHBoxLayout()
         info_box = QVBoxLayout()
-        stitle = QLabel("🌐 SANAL 7.1 UZAMSAL ÇEVRESEL SES (VIRTUAL 7.1 SURROUND)")
-        stitle.setStyleSheet("font-size: 13px; font-weight: 800; color: #FFFFFF;")
-        sdesc = QLabel("360° uzamsal ses derinliği ile düşman ayak sesleri ve silah yön tayini")
-        sdesc.setStyleSheet("font-size: 11px; color: #72768A;")
-        info_box.addWidget(stitle)
-        info_box.addWidget(sdesc)
+        self.stitle = QLabel(I18N.t("surround_title"))
+        self.stitle.setStyleSheet("font-size: 13px; font-weight: 800; color: #FFFFFF;")
+        self.sdesc = QLabel(I18N.t("surround_desc"))
+        self.sdesc.setStyleSheet("font-size: 11px; color: #72768A;")
+        info_box.addWidget(self.stitle)
+        info_box.addWidget(self.sdesc)
         top_row.addLayout(info_box)
 
         top_row.addStretch()
 
-        # Switch box
         sw_box = QHBoxLayout()
         sw_box.setSpacing(10)
-        self.surr_status_lbl = QLabel("Kapalı")
+        self.surr_status_lbl = QLabel(I18N.t("surround_off"))
         self.surr_status_lbl.setStyleSheet("font-size: 12px; font-weight: 700; color: #6E7284;")
         self.surr_switch = ToggleSwitch(checked=False)
         self.surr_switch.toggled.connect(self._on_surr_toggled)
@@ -119,7 +115,6 @@ class EffectsWidget(QFrame):
 
         surr_layout.addLayout(top_row)
 
-        # Spatial Visualizer
         self.speaker_viz = SurroundSpeakerVisualizer()
         surr_layout.addWidget(self.speaker_viz)
 
@@ -131,12 +126,12 @@ class EffectsWidget(QFrame):
         vc_layout = QVBoxLayout(vc_box)
         vc_layout.setSpacing(12)
 
-        vtitle = QLabel("🎭 SES DEĞİŞTİRİCİ DSP EFEKTLERİ (VOICE CHANGER)")
-        vtitle.setStyleSheet("font-size: 13px; font-weight: 800; color: #FFFFFF;")
-        vdesc = QLabel("Kulaklığın dahili DSP çipinde gerçek zamanlı modüle edilen ses efektleri")
-        vdesc.setStyleSheet("font-size: 11px; color: #72768A;")
-        vc_layout.addWidget(vtitle)
-        vc_layout.addWidget(vdesc)
+        self.vtitle = QLabel(I18N.t("voice_changer_title"))
+        self.vtitle.setStyleSheet("font-size: 13px; font-weight: 800; color: #FFFFFF;")
+        self.vdesc = QLabel(I18N.t("voice_changer_desc"))
+        self.vdesc.setStyleSheet("font-size: 11px; color: #72768A;")
+        vc_layout.addWidget(self.vtitle)
+        vc_layout.addWidget(self.vdesc)
 
         effects_grid = QGridLayout()
         effects_grid.setSpacing(10)
@@ -145,17 +140,18 @@ class EffectsWidget(QFrame):
         self.effect_group.setExclusive(True)
 
         effects = [
-            ("Normal / Orijinal", -1, 0, 0),
-            ("👨 Erkek Sesi (Male)", 0, 0, 1),
-            ("👩 Kadın Sesi (Female)", 1, 0, 2),
-            ("👹 Canavar Sesi (Monster)", 2, 1, 0),
-            ("🦆 Çizgi Film / Ördek", 3, 1, 1),
+            ("vc_normal", -1, 0, 0),
+            ("vc_male", 0, 0, 1),
+            ("vc_female", 1, 0, 2),
+            ("vc_monster", 2, 1, 0),
+            ("vc_cartoon", 3, 1, 1),
         ]
 
         self.effect_buttons = {}
-        for label, eff_id, row, col in effects:
-            btn = QPushButton(label)
+        for key, eff_id, row, col in effects:
+            btn = QPushButton(I18N.t(key))
             btn.setProperty("class", "preset-btn")
+            btn.setProperty("i18n_key", key)
             btn.setCheckable(True)
             if eff_id == -1:
                 btn.setChecked(True)
@@ -169,6 +165,21 @@ class EffectsWidget(QFrame):
 
         main_layout.addStretch()
 
+        I18N.sig_language_changed.connect(lambda: self.retranslate())
+
+    def retranslate(self):
+        self.stitle.setText(I18N.t("surround_title"))
+        self.sdesc.setText(I18N.t("surround_desc"))
+        self._update_surr_style(self.surround_enabled)
+
+        self.vtitle.setText(I18N.t("voice_changer_title"))
+        self.vdesc.setText(I18N.t("voice_changer_desc"))
+
+        for eff_id, btn in self.effect_buttons.items():
+            key = btn.property("i18n_key")
+            if key:
+                btn.setText(I18N.t(key))
+
     def _on_surr_toggled(self, checked: bool):
         self.surround_enabled = checked
         self._update_surr_style(checked)
@@ -177,10 +188,10 @@ class EffectsWidget(QFrame):
     def _update_surr_style(self, enabled: bool):
         self.speaker_viz.set_active(enabled)
         if enabled:
-            self.surr_status_lbl.setText("7.1 Açık")
+            self.surr_status_lbl.setText(I18N.t("surround_on"))
             self.surr_status_lbl.setStyleSheet("font-size: 12px; font-weight: 800; color: #00D2FF;")
         else:
-            self.surr_status_lbl.setText("Kapalı")
+            self.surr_status_lbl.setText(I18N.t("surround_off"))
             self.surr_status_lbl.setStyleSheet("font-size: 12px; font-weight: 600; color: #6E7284;")
 
     def _on_effect_clicked(self, eff_id: int):

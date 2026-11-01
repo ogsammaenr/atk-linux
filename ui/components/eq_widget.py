@@ -1,6 +1,5 @@
 """
-Modern 10-Band Parametric Equalizer Studio for ATK Neptune N9.
-Features real-time interactive bezier curve with grid lines, dB references, and official game presets.
+Modern 10-Band Parametric Equalizer Studio for ATK Neptune N9 with i18n support.
 """
 
 from typing import List, Dict
@@ -12,6 +11,7 @@ from PyQt6.QtCore import Qt, pyqtSignal, QPointF, QTimer, QRectF
 from PyQt6.QtGui import QPainter, QColor, QPen, QBrush, QPainterPath, QLinearGradient, QFont
 
 from atk_n9 import EQ_BANDS, PRESET_PROFILES
+from ui.i18n import I18N
 
 
 class EQCurveWidget(QWidget):
@@ -33,20 +33,17 @@ class EQCurveWidget(QWidget):
         h = float(self.height())
         mid_y = h / 2.0
 
-        # Background canvas
         bg_rect = QRectF(0, 0, w, h)
         painter.setPen(QPen(QColor("#1E202B"), 1))
         painter.setBrush(QBrush(QColor("#0E1015")))
         painter.drawRoundedRect(bg_rect, 10, 10)
 
-        # Draw horizontal dB reference lines (+10dB, 0dB, -10dB)
         for db, y_pos in [("+20", 12.0), ("+10", (mid_y + 12.0) / 2.0), ("0", mid_y), ("-10", (mid_y + h - 12.0) / 2.0), ("-20", h - 12.0)]:
             is_zero = (db == "0")
             line_pen = QPen(QColor("#2C2F40") if is_zero else QColor("#1C1E28"), 1, Qt.PenStyle.DashLine if not is_zero else Qt.PenStyle.SolidLine)
             painter.setPen(line_pen)
             painter.drawLine(35, int(y_pos), int(w - 10), int(y_pos))
 
-            # dB label
             painter.setPen(QColor("#52566C") if not is_zero else QColor("#00D2FF"))
             painter.setFont(QFont("sans-serif", 8, QFont.Weight.Bold if is_zero else QFont.Weight.Normal))
             painter.drawText(QRectF(4, y_pos - 7, 28, 14), Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, db)
@@ -54,7 +51,6 @@ class EQCurveWidget(QWidget):
         if len(self.bands) != 10:
             return
 
-        # Calculate frequency control points
         points = []
         plot_left = 40.0
         plot_width = w - 50.0
@@ -62,11 +58,10 @@ class EQCurveWidget(QWidget):
 
         for i, val in enumerate(self.bands):
             x = plot_left + (i * step_x)
-            norm = (val + 20.0) / 40.0 # 0.0 to 1.0
+            norm = (val + 20.0) / 40.0
             y = (h - 14.0) - norm * (h - 28.0)
             points.append(QPointF(x, y))
 
-        # Build smooth path
         path = QPainterPath()
         path.moveTo(plot_left, mid_y)
         path.lineTo(points[0].x() * 0.7 + plot_left * 0.3, (mid_y + points[0].y()) * 0.5)
@@ -82,7 +77,6 @@ class EQCurveWidget(QWidget):
         path.lineTo(w - 10, (mid_y + last_p.y()) * 0.5)
         path.lineTo(w - 10, mid_y)
 
-        # Fill area under curve
         fill_path = QPainterPath(path)
         fill_path.lineTo(w - 10, h - 10)
         fill_path.lineTo(plot_left, h - 10)
@@ -96,12 +90,10 @@ class EQCurveWidget(QWidget):
         painter.setPen(Qt.PenStyle.NoPen)
         painter.drawPath(fill_path)
 
-        # Draw glowing curve line
         painter.setPen(QPen(QColor("#00D2FF"), 2.2))
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(path)
 
-        # Draw glowing frequency nodes
         for p in points:
             painter.setPen(QPen(QColor("#080A0E"), 1.8))
             painter.setBrush(QBrush(QColor("#00F5A0")))
@@ -122,13 +114,11 @@ class EQSliderCol(QWidget):
         layout.setSpacing(6)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # Value label
         self.val_lbl = QLabel("+0")
         self.val_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._update_val_label(0)
         layout.addWidget(self.val_lbl)
 
-        # Vertical Slider
         self.slider = QSlider(Qt.Orientation.Vertical)
         self.slider.setRange(-20, 20)
         self.slider.setValue(0)
@@ -136,7 +126,6 @@ class EQSliderCol(QWidget):
         self.slider.valueChanged.connect(self._on_slider_changed)
         layout.addWidget(self.slider, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        # Frequency label
         self.freq_lbl = QLabel(freq_label)
         self.freq_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.freq_lbl.setStyleSheet("font-size: 11px; color: #7F8498; font-weight: 700;")
@@ -182,27 +171,25 @@ class EqualizerWidget(QFrame):
         main_layout.setContentsMargins(18, 16, 18, 16)
         main_layout.setSpacing(14)
 
-        # Header with title and Reset button
         header_layout = QHBoxLayout()
         title_box = QVBoxLayout()
-        title_lbl = QLabel("10-BANT PARAMETRİK DSP EKOLAYZIR")
-        title_lbl.setStyleSheet("font-size: 14px; font-weight: 900; color: #FFFFFF; letter-spacing: 0.6px;")
-        subtitle_lbl = QLabel("Kulaklığın dahili donanım DSP çipi üzerinde gerçek zamanlı ses eğrisi işleme")
-        subtitle_lbl.setStyleSheet("font-size: 12px; color: #72768A;")
-        title_box.addWidget(title_lbl)
-        title_box.addWidget(subtitle_lbl)
+        self.title_lbl = QLabel(I18N.t("eq_title"))
+        self.title_lbl.setStyleSheet("font-size: 14px; font-weight: 900; color: #FFFFFF; letter-spacing: 0.6px;")
+        self.subtitle_lbl = QLabel(I18N.t("eq_subtitle"))
+        self.subtitle_lbl.setStyleSheet("font-size: 12px; color: #72768A;")
+        title_box.addWidget(self.title_lbl)
+        title_box.addWidget(self.subtitle_lbl)
         header_layout.addLayout(title_box)
 
         header_layout.addStretch()
 
-        self.reset_btn = QPushButton("↺ Sıfırla (Flat)")
+        self.reset_btn = QPushButton(I18N.t("eq_reset_btn"))
         self.reset_btn.setProperty("class", "secondary-btn")
         self.reset_btn.clicked.connect(self.reset_flat)
         header_layout.addWidget(self.reset_btn)
 
         main_layout.addLayout(header_layout)
 
-        # Preset Buttons Row
         preset_layout = QHBoxLayout()
         preset_layout.setSpacing(8)
         self.preset_group = QButtonGroup(self)
@@ -232,11 +219,9 @@ class EqualizerWidget(QFrame):
         preset_layout.addStretch()
         main_layout.addLayout(preset_layout)
 
-        # Curve Canvas
         self.curve_canvas = EQCurveWidget()
         main_layout.addWidget(self.curve_canvas)
 
-        # 10 Vertical Sliders
         sliders_box = QFrame()
         sliders_box.setStyleSheet("background-color: #0E1015; border: 1px solid #1E202B; border-radius: 12px; padding: 10px 14px;")
         sliders_layout = QHBoxLayout(sliders_box)
@@ -251,6 +236,13 @@ class EqualizerWidget(QFrame):
             sliders_layout.addWidget(col)
 
         main_layout.addWidget(sliders_box)
+
+        I18N.sig_language_changed.connect(lambda: self.retranslate())
+
+    def retranslate(self):
+        self.title_lbl.setText(I18N.t("eq_title"))
+        self.subtitle_lbl.setText(I18N.t("eq_subtitle"))
+        self.reset_btn.setText(I18N.t("eq_reset_btn"))
 
     def _on_band_slider_moved(self, index: int, val: int):
         self.current_bands[index] = val

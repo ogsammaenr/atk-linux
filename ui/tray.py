@@ -5,6 +5,7 @@ System Tray Manager for ATK Neptune N9 Linux Driver.
 from PyQt6.QtWidgets import QSystemTrayIcon, QMenu, QApplication
 from PyQt6.QtGui import QIcon, QPixmap, QPainter, QColor, QFont
 from PyQt6.QtCore import pyqtSignal, QObject
+from ui.i18n import I18N
 
 
 def create_tray_pixmap(level: int = 100, connected: bool = True) -> QPixmap:
@@ -57,9 +58,13 @@ class TrayManager(QObject):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self._last_connected = False
+        self._last_battery = 0
+        self._last_charging = False
+
         self.tray = QSystemTrayIcon(parent)
         self.tray.setIcon(QIcon(create_tray_pixmap(90, True)))
-        self.tray.setToolTip("ATK Neptune N9 Kontrol Merkezi")
+        self.tray.setToolTip(I18N.t("app_title"))
 
         # Build context menu
         self.menu = QMenu()
@@ -87,42 +92,54 @@ class TrayManager(QObject):
             }
         """)
 
-        self.title_action = self.menu.addAction("🎧 ATK Neptune N9")
+        self.title_action = self.menu.addAction(I18N.t("tray_title"))
         self.title_action.setEnabled(False)
 
-        self.battery_action = self.menu.addAction("Pil: --%")
+        self.battery_action = self.menu.addAction(f"{I18N.t('tray_battery')}--%")
         self.battery_action.setEnabled(False)
 
         self.menu.addSeparator()
 
-        self.sidetone_action = self.menu.addAction("Yan Tonu Aç / Kapat")
+        self.sidetone_action = self.menu.addAction(I18N.t("tray_toggle_sidetone"))
         self.sidetone_action.triggered.connect(self.sig_toggle_sidetone.emit)
 
         self.menu.addSeparator()
 
-        self.show_action = self.menu.addAction("Arayüzü Göster")
+        self.show_action = self.menu.addAction(I18N.t("tray_show_window"))
         self.show_action.triggered.connect(self.sig_show_window.emit)
 
-        self.quit_action = self.menu.addAction("Çıkış")
+        self.quit_action = self.menu.addAction(I18N.t("tray_quit"))
         self.quit_action.triggered.connect(self.sig_quit_app.emit)
 
         self.tray.setContextMenu(self.menu)
         self.tray.activated.connect(self._on_tray_activated)
         self.tray.show()
 
+        I18N.sig_language_changed.connect(self.retranslate)
+
+    def retranslate(self, lang=None):
+        self.title_action.setText(I18N.t("tray_title"))
+        self.sidetone_action.setText(I18N.t("tray_toggle_sidetone"))
+        self.show_action.setText(I18N.t("tray_show_window"))
+        self.quit_action.setText(I18N.t("tray_quit"))
+        self.update_status(self._last_connected, self._last_battery, self._last_charging)
+
     def _on_tray_activated(self, reason):
         if reason == QSystemTrayIcon.ActivationReason.Trigger: # Left click
             self.sig_show_window.emit()
 
     def update_status(self, connected: bool, battery: int = 0, charging: bool = False):
+        self._last_connected = connected
+        self._last_battery = battery
+        self._last_charging = charging
         self.tray.setIcon(QIcon(create_tray_pixmap(battery, connected)))
         if connected:
-            chg = " (Şarjda)" if charging else ""
-            self.battery_action.setText(f"Pil: %{battery}{chg}")
+            chg = I18N.t("charging_tag") if charging else ""
+            self.battery_action.setText(f"{I18N.t('tray_battery')}%{battery}{chg}")
             self.tray.setToolTip(f"ATK Neptune N9 - %{battery}{chg}")
         else:
-            self.battery_action.setText("Bağlantı Yok")
-            self.tray.setToolTip("ATK Neptune N9 - Bağlantı Yok")
+            self.battery_action.setText(I18N.t("tray_disconnected"))
+            self.tray.setToolTip(f"ATK Neptune N9 - {I18N.t('tray_disconnected')}")
 
     def show_message(self, title: str, message: str):
         # Notifications disabled per user request

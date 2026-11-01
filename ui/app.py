@@ -1,12 +1,12 @@
 """
-Ultra-Modern Linux Control Center Main Window for ATK Neptune N9.
+Ultra-Modern Linux Control Center Main Window for ATK Neptune N9 with i18n Support.
 """
 
 import sys
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QFrame, QStackedWidget, QButtonGroup, QCheckBox,
-    QApplication, QGridLayout
+    QApplication, QGridLayout, QComboBox
 )
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QIcon, QCloseEvent
@@ -19,17 +19,23 @@ from ui.components.battery_widget import BatteryStatusWidget
 from ui.components.eq_widget import EqualizerWidget
 from ui.components.mic_widget import MicControlWidget
 from ui.components.effects_widget import EffectsWidget
+from ui.i18n import I18N
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("ATK Neptune N9 Control Center")
+        self.setWindowTitle(I18N.t("app_title"))
         self.resize(920, 620)
         self.setMinimumSize(880, 580)
         self.setStyleSheet(MAIN_STYLESHEET)
 
         self.minimize_to_tray = True
+        self._is_connected = False
+        self._last_port_msg = ""
+        self._last_mute = False
+        self._last_sidetone = True
+        self._last_surround = False
 
         # 1. Initialize Worker Thread
         self.worker = N9Worker()
@@ -53,10 +59,10 @@ class MainWindow(QMainWindow):
         brand_box.setSpacing(12)
         brand_icon = QLabel("🎧")
         brand_icon.setStyleSheet("font-size: 22px;")
-        brand_title = QLabel("ATK NEPTUNE N9")
-        brand_title.setStyleSheet("font-size: 15px; font-weight: 900; letter-spacing: 1.2px; color: #FFFFFF;")
+        self.brand_title = QLabel(I18N.t("app_brand"))
+        self.brand_title.setStyleSheet("font-size: 15px; font-weight: 900; letter-spacing: 1.2px; color: #FFFFFF;")
         brand_box.addWidget(brand_icon)
-        brand_box.addWidget(brand_title)
+        brand_box.addWidget(self.brand_title)
         topbar_layout.addLayout(brand_box)
 
         topbar_layout.addStretch()
@@ -85,15 +91,16 @@ class MainWindow(QMainWindow):
         self.nav_group.setExclusive(True)
 
         nav_items = [
-            ("⚡ Genel Bakış", 0),
-            ("🎚 Ekolayzır (EQ)", 1),
-            ("🎙 Mikrofon & Yan Ton", 2),
-            ("✨ Ses Efektleri & 7.1", 3),
-            ("⚙ Cihaz & Ayarlar", 4)
+            ("nav_dashboard", 0),
+            ("nav_eq", 1),
+            ("nav_mic", 2),
+            ("nav_effects", 3),
+            ("nav_settings", 4)
         ]
 
-        for label, idx in nav_items:
-            btn = QPushButton(label)
+        self.nav_buttons = []
+        for key, idx in nav_items:
+            btn = QPushButton(I18N.t(key))
             btn.setProperty("class", "nav-btn")
             btn.setCheckable(True)
             if idx == 0:
@@ -101,12 +108,13 @@ class MainWindow(QMainWindow):
             btn.clicked.connect(lambda checked, i=idx: self.pages_stack.setCurrentIndex(i))
             self.nav_group.addButton(btn, idx)
             sidebar_layout.addWidget(btn)
+            self.nav_buttons.append((btn, key))
 
         sidebar_layout.addStretch()
 
-        ver_lbl = QLabel("ATK Linux Native v1.1")
-        ver_lbl.setStyleSheet("color: #4C5064; font-size: 11px; padding-left: 14px; font-weight: 600;")
-        sidebar_layout.addWidget(ver_lbl)
+        self.ver_lbl = QLabel(I18N.t("version_tag"))
+        self.ver_lbl.setStyleSheet("color: #4C5064; font-size: 11px; padding-left: 14px; font-weight: 600;")
+        sidebar_layout.addWidget(self.ver_lbl)
 
         body_layout.addWidget(sidebar)
 
@@ -144,13 +152,13 @@ class MainWindow(QMainWindow):
         statusbar_layout = QHBoxLayout(statusbar)
         statusbar_layout.setContentsMargins(20, 0, 20, 0)
 
-        self.status_port_lbl = QLabel("Port: Aranıyor...")
+        self.status_port_lbl = QLabel(I18N.t("status_searching"))
         self.status_port_lbl.setStyleSheet("color: #65697D; font-size: 11px; font-weight: 600;")
         statusbar_layout.addWidget(self.status_port_lbl)
 
         statusbar_layout.addStretch()
 
-        self.status_link_lbl = QLabel("2.4GHz RF Bağlantısı: Aktif ●")
+        self.status_link_lbl = QLabel(I18N.t("status_link_active"))
         self.status_link_lbl.setStyleSheet("color: #00F5A0; font-size: 11px; font-weight: 700;")
         statusbar_layout.addWidget(self.status_link_lbl)
 
@@ -165,7 +173,10 @@ class MainWindow(QMainWindow):
         # 7. Connect Worker Signals
         self._connect_signals()
 
-        # 8. Start Worker Thread
+        # 8. Connect i18n dynamic updates
+        I18N.sig_language_changed.connect(self.retranslate)
+
+        # 9. Start Worker Thread
         self.worker.start()
 
     def _build_dashboard_page(self) -> QWidget:
@@ -174,7 +185,7 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(16)
 
-        # Showcase Card
+        # Showcase Hero Card
         hero_card = QFrame()
         hero_card.setProperty("class", "card")
         hero_layout = QHBoxLayout(hero_card)
@@ -182,12 +193,12 @@ class MainWindow(QMainWindow):
 
         info_box = QVBoxLayout()
         info_box.setSpacing(6)
-        m_title = QLabel("ATK Neptune N9 Pro / Ultra")
-        m_title.setStyleSheet("font-size: 20px; font-weight: 900; color: #FFFFFF; letter-spacing: 0.5px;")
-        m_desc = QLabel("Çift Modlu (2.4GHz RF / USB-C Kablolu) Ultra Düşük Gecikmeli Espor Oyuncu Kulaklığı")
-        m_desc.setStyleSheet("font-size: 12px; color: #7F8498;")
-        info_box.addWidget(m_title)
-        info_box.addWidget(m_desc)
+        self.hero_title = QLabel(I18N.t("hero_title"))
+        self.hero_title.setStyleSheet("font-size: 20px; font-weight: 900; color: #FFFFFF; letter-spacing: 0.5px;")
+        self.hero_desc = QLabel(I18N.t("hero_subtitle"))
+        self.hero_desc.setStyleSheet("font-size: 12px; color: #7F8498;")
+        info_box.addWidget(self.hero_title)
+        info_box.addWidget(self.hero_desc)
 
         # Spec chips
         chips_row = QHBoxLayout()
@@ -205,10 +216,10 @@ class MainWindow(QMainWindow):
         hero_layout.addLayout(info_box)
         hero_layout.addStretch()
 
-        refresh_btn = QPushButton("Yenile ↻")
-        refresh_btn.setProperty("class", "action-btn")
-        refresh_btn.clicked.connect(lambda: self.worker.queue_command("refresh_all"))
-        hero_layout.addWidget(refresh_btn)
+        self.hero_refresh_btn = QPushButton(I18N.t("refresh_btn"))
+        self.hero_refresh_btn.setProperty("class", "action-btn")
+        self.hero_refresh_btn.clicked.connect(lambda: self.worker.queue_command("refresh_all"))
+        hero_layout.addWidget(self.hero_refresh_btn)
 
         layout.addWidget(hero_card)
 
@@ -218,9 +229,9 @@ class MainWindow(QMainWindow):
         grid_layout = QVBoxLayout(grid_card)
         grid_layout.setSpacing(14)
 
-        grid_title = QLabel("HIZLI DONANIM KONTROLLERİ")
-        grid_title.setStyleSheet("font-size: 13px; font-weight: 900; color: #FFFFFF; letter-spacing: 0.5px;")
-        grid_layout.addWidget(grid_title)
+        self.dash_grid_title = QLabel(I18N.t("quick_controls_title"))
+        self.dash_grid_title.setStyleSheet("font-size: 13px; font-weight: 900; color: #FFFFFF; letter-spacing: 0.5px;")
+        grid_layout.addWidget(self.dash_grid_title)
 
         cards_row = QHBoxLayout()
         cards_row.setSpacing(12)
@@ -230,15 +241,15 @@ class MainWindow(QMainWindow):
         c_side.setProperty("class", "sub-card")
         cs_layout = QVBoxLayout(c_side)
         cs_layout.setSpacing(8)
-        cs_title = QLabel("🎧 Yan Ton (Sidetone)")
-        cs_title.setStyleSheet("font-weight: 700; color: #FFFFFF;")
-        cs_sub = QLabel("Kulaklık içi donanım geri beslemesi")
-        cs_sub.setStyleSheet("font-size: 11px; color: #72768A;")
-        cs_layout.addWidget(cs_title)
-        cs_layout.addWidget(cs_sub)
+        self.dash_cs_title = QLabel(I18N.t("quick_sidetone_title"))
+        self.dash_cs_title.setStyleSheet("font-weight: 700; color: #FFFFFF;")
+        self.dash_cs_sub = QLabel(I18N.t("quick_sidetone_desc"))
+        self.dash_cs_sub.setStyleSheet("font-size: 11px; color: #72768A;")
+        cs_layout.addWidget(self.dash_cs_title)
+        cs_layout.addWidget(self.dash_cs_sub)
 
         cs_bottom = QHBoxLayout()
-        self.dash_side_lbl = QLabel("Açık")
+        self.dash_side_lbl = QLabel(I18N.t("sidetone_on"))
         self.dash_side_lbl.setStyleSheet("font-size: 12px; font-weight: 700; color: #00D2FF;")
         self.dash_side_sw = ToggleSwitch(checked=True)
         self.dash_side_sw.toggled.connect(
@@ -255,15 +266,15 @@ class MainWindow(QMainWindow):
         c_mic.setProperty("class", "sub-card")
         cm_layout = QVBoxLayout(c_mic)
         cm_layout.setSpacing(8)
-        cm_title = QLabel("🎙 Mikrofon Durumu")
-        cm_title.setStyleSheet("font-weight: 700; color: #FFFFFF;")
-        cm_sub = QLabel("Fiziksel susturma anahtarı")
-        cm_sub.setStyleSheet("font-size: 11px; color: #72768A;")
-        cm_layout.addWidget(cm_title)
-        cm_layout.addWidget(cm_sub)
+        self.dash_cm_title = QLabel(I18N.t("quick_mic_title"))
+        self.dash_cm_title.setStyleSheet("font-weight: 700; color: #FFFFFF;")
+        self.dash_cm_sub = QLabel(I18N.t("quick_mic_desc"))
+        self.dash_cm_sub.setStyleSheet("font-size: 11px; color: #72768A;")
+        cm_layout.addWidget(self.dash_cm_title)
+        cm_layout.addWidget(self.dash_cm_sub)
 
         cm_bottom = QHBoxLayout()
-        self.dash_mute_lbl = QLabel("Aktif")
+        self.dash_mute_lbl = QLabel(I18N.t("mic_active"))
         self.dash_mute_lbl.setStyleSheet("font-size: 12px; font-weight: 700; color: #00F5A0;")
         self.dash_mute_sw = ToggleSwitch(checked=False)
         self.dash_mute_sw.toggled.connect(
@@ -280,15 +291,15 @@ class MainWindow(QMainWindow):
         c_surr.setProperty("class", "sub-card")
         cr_layout = QVBoxLayout(c_surr)
         cr_layout.setSpacing(8)
-        cr_title = QLabel("🌐 Sanal 7.1 Surround")
-        cr_title.setStyleSheet("font-weight: 700; color: #FFFFFF;")
-        cr_sub = QLabel("360° uzamsal ses derinliği")
-        cr_sub.setStyleSheet("font-size: 11px; color: #72768A;")
-        cr_layout.addWidget(cr_title)
-        cr_layout.addWidget(cr_sub)
+        self.dash_cr_title = QLabel(I18N.t("quick_surround_title"))
+        self.dash_cr_title.setStyleSheet("font-weight: 700; color: #FFFFFF;")
+        self.dash_cr_sub = QLabel(I18N.t("quick_surround_desc"))
+        self.dash_cr_sub.setStyleSheet("font-size: 11px; color: #72768A;")
+        cr_layout.addWidget(self.dash_cr_title)
+        cr_layout.addWidget(self.dash_cr_sub)
 
         cr_bottom = QHBoxLayout()
-        self.dash_surr_lbl = QLabel("Kapalı")
+        self.dash_surr_lbl = QLabel(I18N.t("surround_off"))
         self.dash_surr_lbl.setStyleSheet("font-size: 12px; font-weight: 600; color: #6E7284;")
         self.dash_surr_sw = ToggleSwitch(checked=False)
         self.dash_surr_sw.toggled.connect(
@@ -317,47 +328,131 @@ class MainWindow(QMainWindow):
         c_layout = QVBoxLayout(card)
         c_layout.setSpacing(14)
 
-        title = QLabel("DONANIM VE PROTOKOL DETAYLARI")
-        title.setStyleSheet("font-size: 14px; font-weight: 900; color: #FFFFFF; letter-spacing: 0.6px;")
-        c_layout.addWidget(title)
+        self.info_title = QLabel(I18N.t("info_title"))
+        self.info_title.setStyleSheet("font-size: 14px; font-weight: 900; color: #FFFFFF; letter-spacing: 0.6px;")
+        c_layout.addWidget(self.info_title)
 
         info_items = [
-            ("Üretici ve Cihaz:", "Beibinghe Technology ATK N9 PRO / Ultra"),
-            ("USB VID:PID:", "373B:11CB (2.4G Dongle) / 373B:11CA (Kablolu)"),
-            ("Kontrol İletişim Portu:", "USB CDC-ACM Seri Port (/dev/ttyACM0)"),
-            ("Haberleşme Formatı:", "9600 Baud, 8 Data Bit, 1 Stop Bit, No Parity (8N1)"),
-            ("Çerçeve Mimarisi:", "Sabit 64-Bayt Çift Yönlü DSP Kontrol & Telemetri"),
-            ("Ses Motoru Entegrasyonu:", "USB Audio Class 1.0 (PipeWire / ALSA Native)"),
-            ("Medya Tuşları:", "Linux Input Subsystem (hid-generic Consumer Controls)")
+            ("info_manufacturer", "Beibinghe Technology ATK N9 PRO / Ultra"),
+            ("info_vid_pid", "373B:11CB (2.4G Dongle) / 373B:11CA (Kablolu)"),
+            ("info_port", "USB CDC-ACM Seri Port (/dev/ttyACM0)"),
+            ("info_format", "9600 Baud, 8 Data Bit, 1 Stop Bit, No Parity (8N1)"),
+            ("info_framing", "Sabit 64-Bayt Çift Yönlü DSP Kontrol & Telemetri"),
+            ("info_audio_engine", "USB Audio Class 1.0 (PipeWire / ALSA Native)"),
+            ("info_media_keys", "Linux Input Subsystem (hid-generic Consumer Controls)")
         ]
 
-        for k, v in info_items:
+        self.info_labels = {}
+        for key, val in info_items:
             row = QHBoxLayout()
-            lbl_k = QLabel(k)
+            lbl_k = QLabel(I18N.t(key))
             lbl_k.setStyleSheet("color: #72768A; font-weight: 600; min-width: 180px;")
-            lbl_v = QLabel(v)
+            self.info_labels[key] = lbl_k
+
+            lbl_v = QLabel(val)
             lbl_v.setStyleSheet("color: #FFFFFF; font-weight: 700;")
             row.addWidget(lbl_k)
             row.addWidget(lbl_v)
             row.addStretch()
             c_layout.addLayout(row)
 
-        c_layout.addSpacing(8)
+        c_layout.addSpacing(12)
 
-        # Options Box
+        # Application Preferences Box
         opt_box = QFrame()
         opt_box.setProperty("class", "sub-card")
         ob_layout = QVBoxLayout(opt_box)
-        self.tray_check = QCheckBox("Pencereyi kapatınca uygulamayı sistem tepsisine (Tray) küçült")
+        ob_layout.setSpacing(14)
+
+        self.opt_title = QLabel(I18N.t("settings_options_title"))
+        self.opt_title.setStyleSheet("font-size: 13px; font-weight: 800; color: #FFFFFF;")
+        ob_layout.addWidget(self.opt_title)
+
+        # Language Selection Row
+        lang_row = QHBoxLayout()
+        self.lang_label = QLabel(I18N.t("settings_language"))
+        self.lang_label.setStyleSheet("color: #B5B9CB; font-weight: 600; font-size: 13px;")
+        lang_row.addWidget(self.lang_label)
+        lang_row.addStretch()
+
+        self.lang_combo = QComboBox()
+        self.lang_combo.addItem("🇹🇷 Türkçe (TR)", "tr")
+        self.lang_combo.addItem("🇬🇧 English (EN)", "en")
+        curr_idx = 0 if I18N.current_language == "tr" else 1
+        self.lang_combo.setCurrentIndex(curr_idx)
+        self.lang_combo.currentIndexChanged.connect(self._on_language_changed)
+        lang_row.addWidget(self.lang_combo)
+        ob_layout.addLayout(lang_row)
+
+        # Tray minimize Checkbox
+        self.tray_check = QCheckBox(I18N.t("settings_minimize_tray"))
         self.tray_check.setChecked(True)
         self.tray_check.toggled.connect(lambda chk: setattr(self, "minimize_to_tray", chk))
         self.tray_check.setStyleSheet("color: #FFFFFF; font-weight: 600; font-size: 13px;")
         ob_layout.addWidget(self.tray_check)
+
         c_layout.addWidget(opt_box)
 
         layout.addWidget(card)
         layout.addStretch()
         return page
+
+    def _on_language_changed(self, index: int):
+        lang = self.lang_combo.itemData(index)
+        if lang:
+            I18N.set_language(lang)
+
+    def retranslate(self, lang=None):
+        self.setWindowTitle(I18N.t("app_title"))
+        self.brand_title.setText(I18N.t("app_brand"))
+        self.ver_lbl.setText(I18N.t("version_tag"))
+
+        # Sidebar navigation buttons
+        for btn, key in self.nav_buttons:
+            btn.setText(I18N.t(key))
+
+        # Dashboard hero
+        self.hero_title.setText(I18N.t("hero_title"))
+        self.hero_desc.setText(I18N.t("hero_subtitle"))
+        self.hero_refresh_btn.setText(I18N.t("refresh_btn"))
+        self.dash_grid_title.setText(I18N.t("quick_controls_title"))
+
+        # Dashboard quick controls
+        self.dash_cs_title.setText(I18N.t("quick_sidetone_title"))
+        self.dash_cs_sub.setText(I18N.t("quick_sidetone_desc"))
+        self.dash_side_lbl.setText(I18N.t("sidetone_on") if self._last_sidetone else I18N.t("sidetone_off"))
+
+        self.dash_cm_title.setText(I18N.t("quick_mic_title"))
+        self.dash_cm_sub.setText(I18N.t("quick_mic_desc"))
+        self.dash_mute_lbl.setText(I18N.t("mic_muted") if self._last_mute else I18N.t("mic_active"))
+
+        self.dash_cr_title.setText(I18N.t("quick_surround_title"))
+        self.dash_cr_sub.setText(I18N.t("quick_surround_desc"))
+        self.dash_surr_lbl.setText(I18N.t("surround_on") if self._last_surround else I18N.t("surround_off"))
+
+        # Settings & Info page
+        self.info_title.setText(I18N.t("info_title"))
+        for key, lbl in self.info_labels.items():
+            lbl.setText(I18N.t(key))
+        self.opt_title.setText(I18N.t("settings_options_title"))
+        self.lang_label.setText(I18N.t("settings_language"))
+        self.tray_check.setText(I18N.t("settings_minimize_tray"))
+
+        # Sync language combo
+        target_idx = 0 if I18N.current_language == "tr" else 1
+        if self.lang_combo.currentIndex() != target_idx:
+            self.lang_combo.blockSignals(True)
+            self.lang_combo.setCurrentIndex(target_idx)
+            self.lang_combo.blockSignals(False)
+
+        # Status Bar
+        if self._is_connected:
+            self.status_port_lbl.setText(f"Port: {self._last_port_msg} (9600 8N1)")
+            self.status_link_lbl.setText(I18N.t("status_link_active"))
+        else:
+            p_msg = f" ({self._last_port_msg})" if self._last_port_msg else ""
+            self.status_port_lbl.setText(f"{I18N.t('status_not_connected')}{p_msg}")
+            self.status_link_lbl.setText(I18N.t("status_link_none"))
 
     def _connect_signals(self):
         # Worker to UI
@@ -392,15 +487,17 @@ class MainWindow(QMainWindow):
         )
 
     def _on_connection_changed(self, connected: bool, msg: str):
+        self._is_connected = connected
+        self._last_port_msg = msg
         self.battery_widget.set_status(connected)
         self.tray_manager.update_status(connected)
         if connected:
             self.status_port_lbl.setText(f"Port: {msg} (9600 8N1)")
-            self.status_link_lbl.setText("2.4GHz RF Bağlantısı: Aktif ●")
+            self.status_link_lbl.setText(I18N.t("status_link_active"))
             self.status_link_lbl.setStyleSheet("color: #00F5A0; font-size: 11px; font-weight: 700;")
         else:
-            self.status_port_lbl.setText(f"Port: Bağlı Değil ({msg})")
-            self.status_link_lbl.setText("Bağlantı Yok ○")
+            self.status_port_lbl.setText(f"{I18N.t('status_not_connected')} ({msg})")
+            self.status_link_lbl.setText(I18N.t("status_link_none"))
             self.status_link_lbl.setStyleSheet("color: #FF3366; font-size: 11px; font-weight: 700;")
 
     def _on_status_updated(self, data: dict):
@@ -418,17 +515,19 @@ class MainWindow(QMainWindow):
         self.mic_widget.update_state(mute, vol, s_en, s_vol)
 
         if mute is not None:
+            self._last_mute = mute
             self.dash_mute_sw.blockSignals(True)
             self.dash_mute_sw.setChecked(mute)
             self.dash_mute_sw.blockSignals(False)
-            self.dash_mute_lbl.setText("Sessizde" if mute else "Aktif")
+            self.dash_mute_lbl.setText(I18N.t("mic_muted") if mute else I18N.t("mic_active"))
             self.dash_mute_lbl.setStyleSheet("font-size: 12px; font-weight: 800; color: #FF3366;" if mute else "font-size: 12px; font-weight: 700; color: #00F5A0;")
 
         if s_en is not None:
+            self._last_sidetone = s_en
             self.dash_side_sw.blockSignals(True)
             self.dash_side_sw.setChecked(s_en)
             self.dash_side_sw.blockSignals(False)
-            self.dash_side_lbl.setText("Açık" if s_en else "Kapalı")
+            self.dash_side_lbl.setText(I18N.t("sidetone_on") if s_en else I18N.t("sidetone_off"))
             self.dash_side_lbl.setStyleSheet("font-size: 12px; font-weight: 700; color: #00D2FF;" if s_en else "font-size: 12px; font-weight: 600; color: #6E7284;")
 
     def _on_eq_updated(self, data: dict):
@@ -438,11 +537,12 @@ class MainWindow(QMainWindow):
 
     def _on_surround_updated(self, data: dict):
         en = data.get("enabled", False)
+        self._last_surround = en
         self.effects_widget.update_state(surround_en=en)
         self.dash_surr_sw.blockSignals(True)
         self.dash_surr_sw.setChecked(en)
         self.dash_surr_sw.blockSignals(False)
-        self.dash_surr_lbl.setText("7.1 Açık" if en else "Kapalı")
+        self.dash_surr_lbl.setText(I18N.t("surround_on") if en else I18N.t("surround_off"))
         self.dash_surr_lbl.setStyleSheet("font-size: 12px; font-weight: 800; color: #00D2FF;" if en else "font-size: 12px; font-weight: 600; color: #6E7284;")
 
     def _on_effect_updated(self, data: dict):

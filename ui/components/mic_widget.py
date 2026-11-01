@@ -1,6 +1,5 @@
 """
-Modern Microphone & Hardware Sidetone (Monitor) Controls for ATK Neptune N9.
-Equipped with modern pill sliding toggle switches and smooth sliders.
+Modern Microphone & Hardware Sidetone (Monitor) Controls for ATK Neptune N9 with i18n support.
 """
 
 from PyQt6.QtWidgets import (
@@ -10,6 +9,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, pyqtSignal, QTimer
 
 from ui.components.toggle_switch import ToggleSwitch
+from ui.i18n import I18N
 
 
 class MicControlWidget(QFrame):
@@ -48,20 +48,19 @@ class MicControlWidget(QFrame):
 
         mic_header = QHBoxLayout()
         mic_title_box = QVBoxLayout()
-        mic_title = QLabel("🎙 MİKROFON GİRİŞ AYARLARI")
-        mic_title.setStyleSheet("font-size: 13px; font-weight: 800; color: #FFFFFF;")
-        mic_desc = QLabel("Kulaklık mikrofon hassasiyeti ve susturma durumu")
-        mic_desc.setStyleSheet("font-size: 11px; color: #72768A;")
-        mic_title_box.addWidget(mic_title)
-        mic_title_box.addWidget(mic_desc)
+        self.mic_title = QLabel(I18N.t("mic_settings_title"))
+        self.mic_title.setStyleSheet("font-size: 13px; font-weight: 800; color: #FFFFFF;")
+        self.mic_desc = QLabel(I18N.t("mic_settings_desc"))
+        self.mic_desc.setStyleSheet("font-size: 11px; color: #72768A;")
+        mic_title_box.addWidget(self.mic_title)
+        mic_title_box.addWidget(self.mic_desc)
         mic_header.addLayout(mic_title_box)
 
         mic_header.addStretch()
 
-        # Mute switch box
         mute_box = QHBoxLayout()
         mute_box.setSpacing(10)
-        self.mute_status_lbl = QLabel("Mikrofon Açık")
+        self.mute_status_lbl = QLabel(I18N.t("mic_unmuted_label"))
         self.mute_status_lbl.setStyleSheet("font-size: 12px; font-weight: 700; color: #00F5A0;")
         self.mute_switch = ToggleSwitch(checked=False)
         self.mute_switch.toggled.connect(self._on_mute_toggled)
@@ -74,9 +73,9 @@ class MicControlWidget(QFrame):
         # Mic Volume Slider Row
         mic_slider_row = QHBoxLayout()
         mic_slider_row.setSpacing(12)
-        mic_slider_lbl = QLabel("Giriş Seviyesi:")
-        mic_slider_lbl.setStyleSheet("color: #9A9EA6; font-weight: 600; min-width: 90px;")
-        mic_slider_row.addWidget(mic_slider_lbl)
+        self.mic_slider_lbl = QLabel(I18N.t("mic_input_level"))
+        self.mic_slider_lbl.setStyleSheet("color: #9A9EA6; font-weight: 600; min-width: 90px;")
+        mic_slider_row.addWidget(self.mic_slider_lbl)
 
         self.mic_slider = QSlider(Qt.Orientation.Horizontal)
         self.mic_slider.setRange(0, 100)
@@ -100,20 +99,19 @@ class MicControlWidget(QFrame):
 
         side_header = QHBoxLayout()
         side_title_box = QVBoxLayout()
-        side_title = QLabel("🎧 YAN TON (SIDETONE / HARDWARE MONITOR)")
-        side_title.setStyleSheet("font-size: 13px; font-weight: 800; color: #FFFFFF;")
-        side_desc = QLabel("Kulaklık içinden kendi sesinizi sıfır gecikmeyle duyarak konuşma netliğini artırın")
-        side_desc.setStyleSheet("font-size: 11px; color: #72768A;")
-        side_title_box.addWidget(side_title)
-        side_title_box.addWidget(side_desc)
+        self.side_title = QLabel(I18N.t("sidetone_settings_title"))
+        self.side_title.setStyleSheet("font-size: 13px; font-weight: 800; color: #FFFFFF;")
+        self.side_desc = QLabel(I18N.t("sidetone_settings_desc"))
+        self.side_desc.setStyleSheet("font-size: 11px; color: #72768A;")
+        side_title_box.addWidget(self.side_title)
+        side_title_box.addWidget(self.side_desc)
         side_header.addLayout(side_title_box)
 
         side_header.addStretch()
 
-        # Sidetone switch box
         side_toggle_box = QHBoxLayout()
         side_toggle_box.setSpacing(10)
-        self.side_status_lbl = QLabel("Yan Ton: Açık")
+        self.side_status_lbl = QLabel(I18N.t("sidetone_active_label"))
         self.side_status_lbl.setStyleSheet("font-size: 12px; font-weight: 700; color: #00D2FF;")
         self.sidetone_switch = ToggleSwitch(checked=True)
         self.sidetone_switch.toggled.connect(self._on_sidetone_toggled)
@@ -126,9 +124,9 @@ class MicControlWidget(QFrame):
         # Sidetone Volume Slider Row
         side_slider_row = QHBoxLayout()
         side_slider_row.setSpacing(12)
-        side_slider_lbl = QLabel("Yan Ton Şiddeti:")
-        side_slider_lbl.setStyleSheet("color: #9A9EA6; font-weight: 600; min-width: 90px;")
-        side_slider_row.addWidget(side_slider_lbl)
+        self.side_slider_lbl = QLabel(I18N.t("sidetone_level"))
+        self.side_slider_lbl.setStyleSheet("color: #9A9EA6; font-weight: 600; min-width: 90px;")
+        side_slider_row.addWidget(self.side_slider_lbl)
 
         self.sidetone_slider = QSlider(Qt.Orientation.Horizontal)
         self.sidetone_slider.setRange(0, 100)
@@ -146,6 +144,19 @@ class MicControlWidget(QFrame):
 
         main_layout.addStretch()
 
+        I18N.sig_language_changed.connect(lambda: self.retranslate())
+
+    def retranslate(self):
+        self.mic_title.setText(I18N.t("mic_settings_title"))
+        self.mic_desc.setText(I18N.t("mic_settings_desc"))
+        self.mic_slider_lbl.setText(I18N.t("mic_input_level"))
+        self._update_mute_style(self.is_muted)
+
+        self.side_title.setText(I18N.t("sidetone_settings_title"))
+        self.side_desc.setText(I18N.t("sidetone_settings_desc"))
+        self.side_slider_lbl.setText(I18N.t("sidetone_level"))
+        self._update_sidetone_style(self.sidetone_enabled)
+
     def _on_mute_toggled(self, checked: bool):
         self.is_muted = checked
         self._update_mute_style(checked)
@@ -153,10 +164,10 @@ class MicControlWidget(QFrame):
 
     def _update_mute_style(self, muted: bool):
         if muted:
-            self.mute_status_lbl.setText("Sessizde (Muted)")
+            self.mute_status_lbl.setText(I18N.t("mic_muted_label"))
             self.mute_status_lbl.setStyleSheet("font-size: 12px; font-weight: 800; color: #FF3366;")
         else:
-            self.mute_status_lbl.setText("Mikrofon Açık")
+            self.mute_status_lbl.setText(I18N.t("mic_unmuted_label"))
             self.mute_status_lbl.setStyleSheet("font-size: 12px; font-weight: 700; color: #00F5A0;")
 
     def _on_mic_slider_moved(self, val: int):
@@ -172,10 +183,10 @@ class MicControlWidget(QFrame):
 
     def _update_sidetone_style(self, enabled: bool):
         if enabled:
-            self.side_status_lbl.setText("Yan Ton: Açık")
+            self.side_status_lbl.setText(I18N.t("sidetone_active_label"))
             self.side_status_lbl.setStyleSheet("font-size: 12px; font-weight: 700; color: #00D2FF;")
         else:
-            self.side_status_lbl.setText("Yan Ton: Kapalı")
+            self.side_status_lbl.setText(I18N.t("sidetone_inactive_label"))
             self.side_status_lbl.setStyleSheet("font-size: 12px; font-weight: 600; color: #6E7284;")
 
     def _on_sidetone_slider_moved(self, val: int):

@@ -274,4 +274,41 @@ QFrame#statusbar {
     color: #616578;
     font-size: 11px;
 }
+
+/* Combo Box (Language Selector etc.) */
+QComboBox {
+    background-color: #181924;
+    color: #FFFFFF;
+    border: 1px solid #2B2F40;
+    border-radius: 8px;
+    padding: 6px 14px;
+    min-width: 140px;
+    font-weight: 600;
+    font-size: 12px;
+}
+QComboBox:hover {
+    border-color: #00D2FF;
+    background-color: #212332;
+}
+QComboBox::drop-down {
+    border: none;
+    width: 24px;
+}
+QComboBox::down-arrow {
+    image: none;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid #00D2FF;
+    margin-right: 8px;
+}
+QComboBox QAbstractItemView {
+    background-color: #13141B;
+    color: #FFFFFF;
+    border: 1px solid #2B2F40;
+    border-radius: 8px;
+    padding: 4px;
+    selection-background-color: #00D2FF;
+    selection-color: #0B0C0E;
+}
+
 """

@@ -6,6 +6,7 @@ If an instance is already running, launching again activates and raises the exis
 """
 
 import sys
+import json
 import signal
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtNetwork import QLocalServer, QLocalSocket
@@ -20,6 +21,26 @@ class SingleInstanceApp(QApplication):
         self.socket_name = socket_name
         self._server = None
         self.window = None
+
+    def query_server(self, command: str) -> str | None:
+        """Query running primary instance and return response string if connected."""
+        socket = QLocalSocket()
+        socket.connectToServer(self.socket_name)
+        if socket.waitForConnected(500):
+            socket.write((command + "\n").encode("utf-8"))
+            socket.flush()
+            socket.waitForBytesWritten(500)
+            
+            # Read response
+            resp = bytearray()
+            while socket.waitForReadyRead(500):
+                chunk = socket.readAll().data()
+                if not chunk:
+                    break
+                resp.extend(chunk)
+            socket.disconnectFromServer()
+            return resp.decode("utf-8", "ignore").strip()
+        return None
 
     def is_already_running(self) -> bool:
         socket = QLocalSocket()
@@ -40,6 +61,16 @@ class SingleInstanceApp(QApplication):
         self._server = QLocalServer(self)
         self._server.newConnection.connect(self._handle_client_connection)
         self._server.listen(self.socket_name)
+        self.aboutToQuit.connect(self.cleanup)
+
+    def cleanup(self):
+        if self._server:
+            try:
+                self._server.close()
+            except Exception:
+                pass
+            self._server = None
+        QLocalServer.removeServer(self.socket_name)
 
     def _handle_client_connection(self):
         client = self._server.nextPendingConnection()
@@ -48,7 +79,12 @@ class SingleInstanceApp(QApplication):
 
     def _read_client_message(self, client: QLocalSocket):
         msg = client.readAll().data().decode("utf-8", "ignore").strip()
-        if "ACTIVATE" in msg and self.window:
+        if "GET_JSON" in msg and self.window:
+            payload = self.window.get_telemetry_json()
+            client.write(payload.encode("utf-8"))
+            client.flush()
+            client.waitForBytesWritten(500)
+        elif "ACTIVATE" in msg and self.window:
             self.window.show_and_activate()
         client.disconnectFromServer()
 
@@ -62,15 +98,46 @@ def main():
     app.setApplicationDisplayName("ATK Neptune N9")
     app.setQuitOnLastWindowClosed(False)
 
-    if app.is_already_running():
-        print("ATK Neptune N9 uygulaması zaten arka planda çalışıyor. Mevcut pencere öne getirildi.")
+    # 1. Handle --json flag (CLI status endpoint)
+    if "--json" in sys.argv or (len(sys.argv) > 1 and sys.argv[1].lower() == "json"):
+        # If GUI is running, fetch telemetry over IPC socket
+        running_json = app.query_server("GET_JSON")
+        if running_json:
+            print(running_json)
+            sys.exit(0)
+
+        # Standalone: read directly from hardware
+        from atk_n9 import ATKNeptuneN9, get_device_status_dict
+        try:
+            with ATKNeptuneN9() as dev:
+                data = get_device_status_dict(dev)
+                print(json.dumps(data, indent=2, ensure_ascii=False))
+        except Exception as e:
+            print(json.dumps({
+                "connected": False,
+                "error": str(e),
+                "text": "N/A",
+                "class": "disconnected"
+            }))
         sys.exit(0)
 
+    # 2. Check single instance
+    start_minimized = "--minimized" in sys.argv or "--tray" in sys.argv
+    if app.is_already_running():
+        if not start_minimized:
+            print("ATK Neptune N9 uygulaması zaten arka planda çalışıyor. Mevcut pencere öne getirildi.")
+        sys.exit(0)
+
+    # 3. Create main window
     window = MainWindow()
     app.setup_single_instance_server(window)
-    window.show()
 
-    sys.exit(app.exec())
+    if not start_minimized:
+        window.show()
+
+    ret = app.exec()
+    app.cleanup()
+    sys.exit(ret)
 
 
 if __name__ == "__main__":

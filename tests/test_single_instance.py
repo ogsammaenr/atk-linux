@@ -30,11 +30,16 @@ def test_single_instance():
         orig_show_and_activate()
     win1.show_and_activate = mock_activate
 
-    # 2. Start Secondary
-    app2 = SingleInstanceApp([])
-    is_running = app2.is_already_running()
+    # 2. Simulate Secondary client connecting
+    socket = QLocalSocket()
+    socket.connectToServer(SOCKET_NAME)
+    is_running = socket.waitForConnected(500)
     print("Second instance detected running primary:", is_running)
     assert is_running is True, "Second instance MUST detect primary server!"
+    socket.write(b"ACTIVATE\n")
+    socket.flush()
+    socket.waitForBytesWritten(500)
+    socket.disconnectFromServer()
 
     # Process events on app1 to handle the connection
     def check_result():

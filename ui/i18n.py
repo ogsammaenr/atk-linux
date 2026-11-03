@@ -6,205 +6,214 @@ Supports Turkish ('tr') and English ('en') with persistent user settings.
 import json
 from pathlib import Path
 from PyQt6.QtCore import QObject, pyqtSignal
+from ui.config import CONFIG
 
-CONFIG_DIR = Path.home() / ".config" / "atk-n9"
-CONFIG_FILE = CONFIG_DIR / "settings.json"
+CONFIG_DIR = CONFIG.config_dir
+CONFIG_FILE = CONFIG.config_file
 
 TRANSLATIONS = {
     "tr": {
         # App / Window
         "app_title": "ATK Neptune N9 - Linux Kontrol Merkezi",
-        "app_brand": "ATK NEPTUNE N9",
-        "version_tag": "ATK Linux Native v1.1",
+        "app_brand": "ATK // NEPTUNE_N9",
+        "version_tag": "[REV. PRO_ULTRA]",
         
-        # Navigation
-        "nav_dashboard": "⚡ Genel Bakış",
-        "nav_eq": "🎚 Ekolayzır (EQ)",
-        "nav_mic": "🎙 Mikrofon & Yan Ton",
-        "nav_effects": "✨ Ses Efektleri & 7.1",
-        "nav_settings": "⚙ Cihaz & Ayarlar",
+        # Navigation (Nordic Numbered)
+        "nav_dashboard": "01 GENEL BAKIŞ",
+        "nav_eq": "02 EKOLAYZIR (EQ)",
+        "nav_mic": "03 MİKROFON & YAN TON",
+        "nav_effects": "04 UZAMSAL 7.1 & EFEKT",
+        "nav_settings": "05 CİHAZ & AYARLAR",
         
         # Header Status
-        "searching_device": "Bağlantı Aranıyor...",
-        "connected_badge": "● Bağlı",
-        "disconnected_badge": "○ Bağlantı Yok",
-        "charging_tag": " (Şarjda)",
+        "searching_device": "[CİHAZ_ARANIYOR]",
+        "connected_badge": "[LINK: 2.4G_OK]",
+        "disconnected_badge": "[BAĞLANTI_YOK]",
+        "charging_tag": " [ŞARJ]",
         
         # Dashboard
-        "hero_title": "ATK Neptune N9 Pro / Ultra",
-        "hero_subtitle": "Çift Modlu (2.4GHz RF / USB-C Kablolu) Ultra Düşük Gecikmeli Espor Oyuncu Kulaklığı",
-        "refresh_btn": "Yenile ↻",
-        "quick_controls_title": "HIZLI DONANIM KONTROLLERİ",
+        "hero_title": "ATK // NEPTUNE_N9",
+        "hero_subtitle": "Dahili Donanım Parametrik DSP & Ultra Düşük Gecikmeli 2.4GHz RF Ses Mimarisi",
+        "refresh_btn": "[YENİLE ↻]",
+        "quick_controls_title": "DONANIM KONTROL BLOĞU",
         
-        "quick_sidetone_title": "🎧 Yan Ton (Sidetone)",
-        "quick_sidetone_desc": "Kulaklık içi donanım geri beslemesi",
-        "sidetone_on": "Açık",
-        "sidetone_off": "Kapalı",
+        "quick_sidetone_title": "YAN TON // MONITOR",
+        "quick_sidetone_desc": "Donanım seviyesi sıfır gecikmeli geri besleme",
+        "sidetone_on": "[AKTİF]",
+        "sidetone_off": "[KAPALI]",
         
-        "quick_mic_title": "🎙 Mikrofon Durumu",
-        "quick_mic_desc": "Fiziksel susturma anahtarı",
-        "mic_active": "Aktif",
-        "mic_muted": "Sessizde",
+        "quick_mic_title": "GİRİŞ // MİKROFON",
+        "quick_mic_desc": "Fiziksel donanım susturma durumu",
+        "mic_active": "[AKTİF]",
+        "mic_muted": "[SESSİZDE]",
         
-        "quick_surround_title": "🌐 Sanal 7.1 Surround",
-        "quick_surround_desc": "360° uzamsal ses derinliği",
-        "surround_on": "7.1 Açık",
-        "surround_off": "Kapalı",
+        "quick_surround_title": "UZAMSAL // SANAL 7.1",
+        "quick_surround_desc": "360° yönsel çevresel ses matrisi",
+        "surround_on": "[7.1 AKTİF]",
+        "surround_off": "[KAPALI]",
         
         # Equalizer
-        "eq_title": "10-BANT PARAMETRİK DSP EKOLAYZIR",
-        "eq_subtitle": "Kulaklığın dahili donanım DSP çipi üzerinde gerçek zamanlı ses eğrisi işleme",
-        "eq_reset_btn": "↺ Sıfırla (Flat)",
+        "eq_title": "BLOCK_01 // 10-BANT PARAMETRİK DSP MATRİSİ",
+        "eq_subtitle": "Dahili donanım DSP işlemcisi üzerinde alt-milisaniye parametrik frekans eğrisi",
+        "eq_reset_btn": "[SIFIRLA (FLAT)]",
         
         # Microphone & Sidetone
-        "mic_settings_title": "🎙 MİKROFON GİRİŞ AYARLARI",
-        "mic_settings_desc": "Kulaklık mikrofon hassasiyeti ve susturma durumu",
-        "mic_input_level": "Giriş Seviyesi:",
-        "mic_unmuted_label": "Mikrofon Açık",
-        "mic_muted_label": "Sessizde (Muted)",
+        "mic_settings_title": "BLOCK_02 // SES GİRİŞİ VE MİKROFON KONTROLÜ",
+        "mic_settings_desc": "Giriş kazancı, donanım susturma ve sıfır gecikmeli yan ton döngüsü",
+        "mic_input_level": "ANALOG KAZANÇ:",
+        "mic_unmuted_label": "[MİKROFON AÇIK]",
+        "mic_muted_label": "[SUSTURULDU]",
+        "mic_vu_title": "GİRİŞ SİNYAL SEVİYESİ (PEAK dBFS)",
+        "mic_vu_desc": "Gerçek zamanlı PipeWire tepe seviye monitörü (-60 ... 0 dBFS)",
+        "mic_vu_muted": "[MİKROFON SUSTURULDU]",
         
-        "sidetone_settings_title": "🎧 YAN TON (SIDETONE / HARDWARE MONITOR)",
-        "sidetone_settings_desc": "Kulaklık içinden kendi sesinizi sıfır gecikmeyle duyarak konuşma netliğini artırın",
-        "sidetone_level": "Yan Ton Şiddeti:",
-        "sidetone_active_label": "Yan Ton: Açık",
-        "sidetone_inactive_label": "Yan Ton: Kapalı",
+        "sidetone_settings_title": "DONANIM YAN TON (HARDWARE SIDETONE)",
+        "sidetone_settings_desc": "Kulaklık içine kendi sesinizin sıfır gecikmeyle karıştırılması",
+        "sidetone_level": "MONİTÖR ŞİDDETİ:",
+        "sidetone_active_label": "YAN TON: [AÇIK]",
+        "sidetone_inactive_label": "YAN TON: [KAPALI]",
         
         # Effects & 7.1
-        "surround_title": "🌐 SANAL 7.1 UZAMSAL ÇEVRESEL SES (VIRTUAL 7.1 SURROUND)",
-        "surround_desc": "360° uzamsal ses derinliği ile düşman ayak sesleri ve silah yön tayini",
-        "voice_changer_title": "🎭 SES DEĞİŞTİRİCİ DSP EFEKTLERİ (VOICE CHANGER)",
-        "voice_changer_desc": "Kulaklığın dahili DSP çipinde gerçek zamanlı modüle edilen ses efektleri",
-        "vc_normal": "Normal / Orijinal",
-        "vc_male": "👨 Erkek Sesi (Male)",
-        "vc_female": "👩 Kadın Sesi (Female)",
-        "vc_monster": "👹 Canavar Sesi (Monster)",
-        "vc_cartoon": "🦆 Çizgi Film / Ördek",
+        "surround_title": "BLOCK_03 // UZAMSAL 7.1 ÇEVRESEL SES MATRİSİ",
+        "surround_desc": "360° kutupsal koordinat ses sahnemesi ile hassas yön tayini",
+        "voice_changer_title": "DSP SES DEĞİŞTİRİCİ MATRİSİ (VOICE FX)",
+        "voice_changer_desc": "Kulaklık donanım DSP çipinde gerçek zamanlı modülasyon",
+        "vc_normal": "[01_ORİJİNAL]",
+        "vc_male": "[02_ERKEK_SESİ]",
+        "vc_female": "[03_KADIN_SESİ]",
+        "vc_monster": "[04_CANAVAR]",
+        "vc_cartoon": "[05_ÇİZGİ_FİLM]",
         
         # Settings & Info
-        "info_title": "DONANIM VE PROTOKOL DETAYLARI",
-        "info_manufacturer": "Üretici ve Cihaz:",
+        "info_title": "DONANIM TELEMETRİSİ VE PROTOKOL DETAYLARI",
+        "info_manufacturer": "CİHAZ TANIMI:",
         "info_vid_pid": "USB VID:PID:",
-        "info_port": "Kontrol İletişim Portu:",
-        "info_format": "Haberleşme Formatı:",
-        "info_framing": "Çerçeve Mimarisi:",
-        "info_audio_engine": "Ses Motoru Entegrasyonu:",
-        "info_media_keys": "Medya Tuşları:",
+        "info_port": "SERİ PORT:",
+        "info_format": "PROTOKOL FORMATI:",
+        "info_framing": "ÇERÇEVE BOYUTU:",
+        "info_audio_engine": "SES ENTEGRASYONU:",
+        "info_media_keys": "MEDYA ANAHTARLARI:",
         
-        "settings_options_title": "UYGULAMA TERCİHLERİ",
-        "settings_minimize_tray": "Pencereyi kapatınca uygulamayı sistem tepsisine (Tray) küçült",
-        "settings_language": "Arayüz Dili / Language:",
+        "settings_options_title": "SİSTEM TERCİHLERİ",
+        "settings_minimize_tray": "Pencere kapatıldığında sistem tepsisinde (Tray) çalışmaya devam et",
+        "settings_autostart": "Sistem açılışında arka planda otomatik başlat",
+        "settings_language": "ARAYÜZ DİLİ / LANGUAGE:",
         
         # Status Bar
-        "status_searching": "Port: Aranıyor...",
-        "status_not_connected": "Port: Bağlı Değil",
-        "status_link_active": "2.4GHz RF Bağlantısı: Aktif ●",
-        "status_link_none": "Bağlantı Yok ○",
+        "status_searching": "PORT: TARANIYOR...",
+        "status_not_connected": "PORT: BAĞLANTI YOK",
+        "status_link_active": "LINK: 2.4G_STABLE // 1000Hz ●",
+        "status_link_none": "LINK: OFFLINE ○",
         
         # System Tray
-        "tray_title": "🎧 ATK Neptune N9",
-        "tray_battery": "Pil: ",
-        "tray_disconnected": "Bağlantı Yok",
+        "tray_title": "ATK // NEPTUNE_N9",
+        "tray_battery": "BATT: ",
+        "tray_disconnected": "[BAĞLANTI YOK]",
         "tray_toggle_sidetone": "Yan Tonu Aç / Kapat",
-        "tray_show_window": "Arayüzü Göster",
+        "tray_show_window": "Kontrol Merkezini Aç",
         "tray_quit": "Çıkış"
     },
     
     "en": {
         # App / Window
         "app_title": "ATK Neptune N9 - Linux Control Center",
-        "app_brand": "ATK NEPTUNE N9",
-        "version_tag": "ATK Linux Native v1.1",
+        "app_brand": "ATK // NEPTUNE_N9",
+        "version_tag": "[REV. PRO_ULTRA]",
         
-        # Navigation
-        "nav_dashboard": "⚡ Overview",
-        "nav_eq": "🎚 Equalizer (EQ)",
-        "nav_mic": "🎙 Mic & Sidetone",
-        "nav_effects": "✨ Audio Effects & 7.1",
-        "nav_settings": "⚙ Device & Settings",
+        # Navigation (Nordic Numbered)
+        "nav_dashboard": "01 DASHBOARD",
+        "nav_eq": "02 EQ MATRIX",
+        "nav_mic": "03 AUDIO INPUT",
+        "nav_effects": "04 SPATIAL 7.1",
+        "nav_settings": "05 SYS SETTINGS",
         
         # Header Status
-        "searching_device": "Searching Device...",
-        "connected_badge": "● Connected",
-        "disconnected_badge": "○ Disconnected",
-        "charging_tag": " (Charging)",
+        "searching_device": "[SEARCHING_DEV]",
+        "connected_badge": "[LINK: 2.4G_OK]",
+        "disconnected_badge": "[NO_LINK]",
+        "charging_tag": " [CHG]",
         
         # Dashboard
-        "hero_title": "ATK Neptune N9 Pro / Ultra",
-        "hero_subtitle": "Dual-Mode (2.4GHz RF / USB-C Wired) Ultra-Low Latency Esports Gaming Headset",
-        "refresh_btn": "Refresh ↻",
-        "quick_controls_title": "QUICK HARDWARE CONTROLS",
+        "hero_title": "ATK // NEPTUNE_N9",
+        "hero_subtitle": "Hardware Parametric DSP & Ultra-Low Latency 2.4GHz RF Architecture",
+        "refresh_btn": "[REFRESH ↻]",
+        "quick_controls_title": "HARDWARE CONTROL BLOCK",
         
-        "quick_sidetone_title": "🎧 Sidetone (Monitor)",
-        "quick_sidetone_desc": "Zero-latency in-ear hardware feedback",
-        "sidetone_on": "On",
-        "sidetone_off": "Off",
+        "quick_sidetone_title": "SIDETONE // MONITOR",
+        "quick_sidetone_desc": "Hardware zero-latency mic feedback loop",
+        "sidetone_on": "[ACTIVE]",
+        "sidetone_off": "[OFF]",
         
-        "quick_mic_title": "🎙 Microphone Status",
-        "quick_mic_desc": "Hardware mute switch state",
-        "mic_active": "Active",
-        "mic_muted": "Muted",
+        "quick_mic_title": "INPUT // MICROPHONE",
+        "quick_mic_desc": "Physical hardware mute switch state",
+        "mic_active": "[ACTIVE]",
+        "mic_muted": "[MUTED]",
         
-        "quick_surround_title": "🌐 Virtual 7.1 Surround",
-        "quick_surround_desc": "360° spatial audio depth",
-        "surround_on": "7.1 On",
-        "surround_off": "Off",
+        "quick_surround_title": "SPATIAL // VIRTUAL 7.1",
+        "quick_surround_desc": "360° directional sound stage matrix",
+        "surround_on": "[7.1 ACTIVE]",
+        "surround_off": "[OFF]",
         
         # Equalizer
-        "eq_title": "10-BAND PARAMETRIC DSP EQUALIZER",
-        "eq_subtitle": "Real-time audio curve processing on internal headset DSP chip",
-        "eq_reset_btn": "↺ Reset (Flat)",
+        "eq_title": "BLOCK_01 // 10-BAND PARAMETRIC DSP MATRIX",
+        "eq_subtitle": "Sub-millisecond parametric response curve processed on-device",
+        "eq_reset_btn": "[RESET (FLAT)]",
         
         # Microphone & Sidetone
-        "mic_settings_title": "🎙 MICROPHONE INPUT SETTINGS",
-        "mic_settings_desc": "Microphone gain sensitivity and hardware mute toggle",
-        "mic_input_level": "Input Level:",
-        "mic_unmuted_label": "Microphone Active",
-        "mic_muted_label": "Muted",
+        "mic_settings_title": "BLOCK_02 // AUDIO INPUT & MIC CONTROLS",
+        "mic_settings_desc": "Input gain, hardware mute and zero-latency monitoring loop",
+        "mic_input_level": "ANALOG GAIN:",
+        "mic_unmuted_label": "[MIC UNMUTED]",
+        "mic_muted_label": "[HARDWARE MUTED]",
+        "mic_vu_title": "INPUT SIGNAL ACTIVITY (PEAK dBFS)",
+        "mic_vu_desc": "Real-time PipeWire audio monitor scale (-60 ... 0 dBFS)",
+        "mic_vu_muted": "[MIC MUTED]",
         
-        "sidetone_settings_title": "🎧 SIDETONE (HARDWARE MONITOR)",
-        "sidetone_settings_desc": "Hear your own voice with zero latency for clearer communication",
-        "sidetone_level": "Sidetone Level:",
-        "sidetone_active_label": "Sidetone: On",
-        "sidetone_inactive_label": "Sidetone: Off",
+        "sidetone_settings_title": "HARDWARE SIDETONE MONITOR",
+        "sidetone_settings_desc": "Zero-latency real-time voice monitoring loopback to headset",
+        "sidetone_level": "MONITOR GAIN:",
+        "sidetone_active_label": "SIDETONE: [ENGAGED]",
+        "sidetone_inactive_label": "SIDETONE: [DISABLED]",
         
         # Effects & 7.1
-        "surround_title": "🌐 VIRTUAL 7.1 SPATIAL SURROUND AUDIO",
-        "surround_desc": "360° spatial depth for enemy footsteps and directional gunfire accuracy",
-        "voice_changer_title": "🎭 VOICE CHANGER DSP EFFECTS",
-        "voice_changer_desc": "Real-time modulated voice effects powered by internal DSP",
-        "vc_normal": "Normal / Original",
-        "vc_male": "👨 Male Voice",
-        "vc_female": "👩 Female Voice",
-        "vc_monster": "👹 Monster Voice",
-        "vc_cartoon": "🦆 Cartoon / Duck",
+        "surround_title": "BLOCK_03 // SPATIAL 7.1 SURROUND MATRIX",
+        "surround_desc": "360° polar coordinate acoustic stage for tactical positioning",
+        "voice_changer_title": "DSP VOICE CHANGER MATRIX (VOICE FX)",
+        "voice_changer_desc": "Real-time hardware voice transformation running on headset DSP",
+        "vc_normal": "[01_ORIGINAL]",
+        "vc_male": "[02_MALE_VOICE]",
+        "vc_female": "[03_FEMALE_VOICE]",
+        "vc_monster": "[04_MONSTER_VOICE]",
+        "vc_cartoon": "[05_CARTOON_DUCK]",
         
         # Settings & Info
-        "info_title": "HARDWARE & PROTOCOL DETAILS",
-        "info_manufacturer": "Manufacturer & Model:",
+        "info_title": "HARDWARE TELEMETRY & PROTOCOL SPECS",
+        "info_manufacturer": "DEVICE IDENTIFIER:",
         "info_vid_pid": "USB VID:PID:",
-        "info_port": "Control Communication Port:",
-        "info_format": "Serial Port Configuration:",
-        "info_framing": "Packet Framing Architecture:",
-        "info_audio_engine": "Audio Engine Integration:",
-        "info_media_keys": "Hardware Media Keys:",
+        "info_port": "SERIAL PORT:",
+        "info_format": "PROTOCOL FORMAT:",
+        "info_framing": "PACKET FRAMING:",
+        "info_audio_engine": "AUDIO ENGINE:",
+        "info_media_keys": "HARDWARE CONTROLS:",
         
-        "settings_options_title": "APPLICATION PREFERENCES",
-        "settings_minimize_tray": "Minimize to system tray on window close",
-        "settings_language": "Interface Language / Dil Seçimi:",
+        "settings_options_title": "SYSTEM PREFERENCES",
+        "settings_minimize_tray": "Minimize to system tray when closing the window",
+        "settings_autostart": "Start automatically in background on system startup",
+        "settings_language": "LANGUAGE / ARAYÜZ DİLİ:",
         
         # Status Bar
-        "status_searching": "Port: Searching...",
-        "status_not_connected": "Port: Disconnected",
-        "status_link_active": "2.4GHz RF Link: Active ●",
-        "status_link_none": "Disconnected ○",
+        "status_searching": "PORT: SCANNING...",
+        "status_not_connected": "PORT: DISCONNECTED",
+        "status_link_active": "LINK: 2.4G_STABLE // 1000Hz ●",
+        "status_link_none": "LINK: OFFLINE ○",
         
         # System Tray
-        "tray_title": "🎧 ATK Neptune N9",
-        "tray_battery": "Battery: ",
-        "tray_disconnected": "Disconnected",
-        "tray_toggle_sidetone": "Toggle Sidetone",
-        "tray_show_window": "Show Window",
-        "tray_quit": "Quit"
+        "tray_title": "ATK // NEPTUNE_N9",
+        "tray_battery": "BATT: ",
+        "tray_disconnected": "[NO_LINK]",
+        "tray_toggle_sidetone": "Toggle Sidetone Loop",
+        "tray_show_window": "Open Control Center",
+        "tray_quit": "Exit"
     }
 }
 
@@ -214,11 +223,17 @@ class I18nManager(QObject):
 
     def __init__(self):
         super().__init__()
-        self.current_language = "tr"
-        self._load_settings()
+        self.current_language = CONFIG.get("language", "tr")
+        if self.current_language not in TRANSLATIONS:
+            self.current_language = "tr"
+
+    def set_language(self, lang_code: str):
+        if lang_code in TRANSLATIONS and lang_code != self.current_language:
+            self.current_language = lang_code
+            CONFIG.set("language", lang_code)
+            self.sig_language_changed.emit(lang_code)
 
     def t(self, key: str, **kwargs) -> str:
-        """Translate a key into the currently active language."""
         lang_dict = TRANSLATIONS.get(self.current_language, TRANSLATIONS["tr"])
         text = lang_dict.get(key, TRANSLATIONS["en"].get(key, key))
         if kwargs:
@@ -228,36 +243,6 @@ class I18nManager(QObject):
                 return text
         return text
 
-    def set_language(self, lang: str):
-        if lang in ("tr", "en") and lang != self.current_language:
-            self.current_language = lang
-            self._save_settings()
-            self.sig_language_changed.emit(lang)
 
-    def _load_settings(self):
-        if CONFIG_FILE.exists():
-            try:
-                data = json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
-                lang = data.get("language", "tr")
-                if lang in ("tr", "en"):
-                    self.current_language = lang
-            except Exception:
-                self.current_language = "tr"
-
-    def _save_settings(self):
-        CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-        try:
-            data = {}
-            if CONFIG_FILE.exists():
-                try:
-                    data = json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
-                except Exception:
-                    data = {}
-            data["language"] = self.current_language
-            CONFIG_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
-        except Exception:
-            pass
-
-
-# Global singleton instance
+# Global Singleton
 I18N = I18nManager()

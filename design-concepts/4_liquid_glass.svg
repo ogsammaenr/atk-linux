@@ -1,0 +1,174 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 660" width="1000" height="660" style="background:#090B14; font-family:'Inter', system-ui, sans-serif;">
+  <defs>
+    <!-- Background Ambient Glow Blobs -->
+    <radialGradient id="purple-blob" cx="20%" cy="20%" r="40%">
+      <stop offset="0%" stop-color="#7C3AED" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#7C3AED" stop-opacity="0.0"/>
+    </radialGradient>
+    <radialGradient id="cyan-blob" cx="80%" cy="70%" r="50%">
+      <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#06B6D4" stop-opacity="0.0"/>
+    </radialGradient>
+    <linearGradient id="glass-card-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="rgba(30, 38, 64, 0.65)"/>
+      <stop offset="100%" stop-color="rgba(15, 20, 36, 0.45)"/>
+    </linearGradient>
+    <linearGradient id="cosmic-pill" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+    <filter id="soft-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Ambient Light Orbs -->
+  <rect x="0" y="0" width="1000" height="660" fill="#090B14"/>
+  <rect x="0" y="0" width="1000" height="660" fill="url(#purple-blob)"/>
+  <rect x="0" y="0" width="1000" height="660" fill="url(#cyan-blob)"/>
+
+  <!-- Window Container with frosted rim -->
+  <rect x="0" y="0" width="1000" height="660" rx="20" fill="none" stroke="rgba(255, 255, 255, 0.12)" stroke-width="1.5"/>
+
+  <!-- Top Floating Header Bar -->
+  <rect x="20" y="16" width="960" height="54" rx="18" fill="url(#glass-card-bg)" stroke="rgba(255, 255, 255, 0.15)"/>
+
+  <!-- Brand -->
+  <text x="44" y="48" font-size="18">🎧</text>
+  <text x="74" y="48" font-size="15" font-weight="800" fill="#FFFFFF" letter-spacing="1">ATK Neptune N9</text>
+  <rect x="210" y="32" width="70" height="22" rx="11" fill="rgba(139, 92, 246, 0.25)" stroke="#8B5CF6" stroke-width="0.8"/>
+  <text x="224" y="47" font-size="10" font-weight="700" fill="#C4B5FD">STUDIO</text>
+
+  <!-- Top Status Glass Badges -->
+  <rect x="715" y="28" width="120" height="30" rx="15" fill="rgba(255, 255, 255, 0.08)" stroke="rgba(255, 255, 255, 0.15)"/>
+  <circle cx="732" cy="43" r="4.5" fill="#10B981" filter="url(#soft-glow)"/>
+  <text x="744" y="47" font-size="11" font-weight="600" fill="#E2E8F0">2.4GHz Link</text>
+
+  <rect x="846" y="28" width="114" height="30" rx="15" fill="rgba(255, 255, 255, 0.08)" stroke="rgba(255, 255, 255, 0.15)"/>
+  <rect x="858" y="36" width="24" height="13" rx="3" fill="none" stroke="#A78BFA"/>
+  <rect x="860" y="38" width="16" height="9" rx="1.5" fill="url(#cosmic-pill)"/>
+  <text x="890" y="47" font-size="12" font-weight="700" fill="#FFFFFF">84%</text>
+
+  <!-- Left Floating Dock Sidebar -->
+  <rect x="20" y="86" width="190" height="554" rx="18" fill="url(#glass-card-bg)" stroke="rgba(255, 255, 255, 0.12)"/>
+
+  <!-- Dock Nav Items -->
+  <g transform="translate(32, 106)">
+    <!-- Active Item with Cosmic Pill -->
+    <rect x="0" y="0" width="166" height="44" rx="14" fill="url(#cosmic-pill)" filter="url(#soft-glow)"/>
+    <text x="18" y="28" font-size="14" fill="#FFFFFF">✨</text>
+    <text x="42" y="27" font-size="13" font-weight="700" fill="#FFFFFF">Dashboard</text>
+
+    <!-- Nav 2 -->
+    <rect x="0" y="56" width="166" height="44" rx="14" fill="rgba(255, 255, 255, 0.04)"/>
+    <text x="18" y="84" font-size="14" fill="#A1A1AA">🎛️</text>
+    <text x="42" y="83" font-size="13" font-weight="500" fill="#D4D4D8">Equalizer</text>
+
+    <!-- Nav 3 -->
+    <rect x="0" y="112" width="166" height="44" rx="14" fill="rgba(255, 255, 255, 0.04)"/>
+    <text x="18" y="140" font-size="14" fill="#A1A1AA">🎙️</text>
+    <text x="42" y="139" font-size="13" font-weight="500" fill="#D4D4D8">Microphone</text>
+
+    <!-- Nav 4 -->
+    <rect x="0" y="168" width="166" height="44" rx="14" fill="rgba(255, 255, 255, 0.04)"/>
+    <text x="18" y="196" font-size="14" fill="#A1A1AA">🌌</text>
+    <text x="42" y="195" font-size="13" font-weight="500" fill="#D4D4D8">Cosmic 7.1</text>
+
+    <!-- Nav 5 -->
+    <rect x="0" y="224" width="166" height="44" rx="14" fill="rgba(255, 255, 255, 0.04)"/>
+    <text x="18" y="252" font-size="14" fill="#A1A1AA">⚙️</text>
+    <text x="42" y="251" font-size="13" font-weight="500" fill="#D4D4D8">Preferences</text>
+  </g>
+
+  <!-- Main Content Cards -->
+  <!-- Card 1: Liquid EQ Curve -->
+  <rect x="226" y="86" width="754" height="260" rx="18" fill="url(#glass-card-bg)" stroke="rgba(255, 255, 255, 0.14)"/>
+  <text x="250" y="116" font-size="15" font-weight="700" fill="#FFFFFF">Acoustic Equalizer</text>
+  <text x="250" y="134" font-size="12" fill="#94A3B8">Liquid 10-band DSP parametric response curve</text>
+
+  <!-- Presets Pills -->
+  <g transform="translate(680, 102)">
+    <rect x="0" y="0" width="70" height="26" rx="13" fill="rgba(255,255,255,0.08)"/>
+    <text x="18" y="17" font-size="11" font-weight="600" fill="#CBD5E1">Natural</text>
+    <rect x="78" y="0" width="80" height="26" rx="13" fill="url(#cosmic-pill)"/>
+    <text x="96" y="17" font-size="11" font-weight="700" fill="#FFFFFF">Gaming</text>
+    <rect x="166" y="0" width="80" height="26" rx="13" fill="rgba(255,255,255,0.08)"/>
+    <text x="182" y="17" font-size="11" font-weight="600" fill="#CBD5E1">Immersive</text>
+  </g>
+
+  <!-- Organic Wave Area in Glass -->
+  <rect x="250" y="152" width="706" height="114" rx="14" fill="rgba(10, 14, 26, 0.5)" stroke="rgba(255, 255, 255, 0.08)"/>
+  <!-- Smooth Liquid Curve -->
+  <path d="M 280 210 C 340 185, 400 160, 480 185 C 560 215, 640 225, 720 170 C 800 135, 870 150, 930 200" fill="none" stroke="url(#cosmic-pill)" stroke-width="3" filter="url(#soft-glow)"/>
+  <!-- Soft Nodes -->
+  <circle cx="280" cy="210" r="5" fill="#FFFFFF" filter="url(#soft-glow)"/>
+  <circle cx="480" cy="185" r="5" fill="#FFFFFF" filter="url(#soft-glow)"/>
+  <circle cx="720" cy="170" r="5" fill="#FFFFFF" filter="url(#soft-glow)"/>
+  <circle cx="800" cy="144" r="7" fill="#06B6D4" stroke="#FFFFFF" stroke-width="2" filter="url(#soft-glow)"/>
+  <circle cx="930" cy="200" r="5" fill="#FFFFFF" filter="url(#soft-glow)"/>
+
+  <!-- Frequency Faders below -->
+  <g transform="translate(250, 280)" font-size="10" fill="#94A3B8" text-anchor="middle">
+    <text x="35" y="16">31Hz</text>
+    <text x="105" y="16">62Hz</text>
+    <text x="175" y="16">125Hz</text>
+    <text x="245" y="16">250Hz</text>
+    <text x="315" y="16">500Hz</text>
+    <text x="385" y="16">1kHz</text>
+    <text x="455" y="16">2kHz</text>
+    <text x="525" y="16">4kHz</text>
+    <text x="595" y="16">8kHz</text>
+    <text x="665" y="16">16kHz</text>
+  </g>
+
+  <!-- Bottom Row: Card 2 & Card 3 -->
+  <!-- Card 2: Voice & Mic -->
+  <rect x="226" y="362" width="365" height="278" rx="18" fill="url(#glass-card-bg)" stroke="rgba(255, 255, 255, 0.14)"/>
+  <text x="250" y="394" font-size="15" font-weight="700" fill="#FFFFFF">Studio Microphone</text>
+  <text x="250" y="412" font-size="12" fill="#94A3B8">Input gain &amp; real-time monitor blend</text>
+
+  <text x="250" y="446" font-size="13" font-weight="600" fill="#E2E8F0">Input Level (85%)</text>
+  <rect x="250" y="458" width="315" height="10" rx="5" fill="rgba(0,0,0,0.4)"/>
+  <rect x="250" y="458" width="267" height="10" rx="5" fill="url(#cosmic-pill)"/>
+  <circle cx="517" cy="463" r="8" fill="#FFFFFF" filter="url(#soft-glow)"/>
+
+  <!-- Ambient Fluid VU Meter -->
+  <text x="250" y="500" font-size="11" font-weight="600" fill="#94A3B8">Live Voice Aura</text>
+  <rect x="250" y="510" width="315" height="16" rx="8" fill="rgba(0,0,0,0.4)"/>
+  <rect x="252" y="512" width="210" height="12" rx="6" fill="url(#cosmic-pill)" filter="url(#soft-glow)"/>
+
+  <!-- Sidetone Pill -->
+  <text x="250" y="562" font-size="13" font-weight="600" fill="#E2E8F0">Sidetone Loop</text>
+  <!-- Apple/Fluid style pill toggle (ON) -->
+  <rect x="505" y="548" width="56" height="26" rx="13" fill="url(#cosmic-pill)" filter="url(#soft-glow)"/>
+  <circle cx="545" cy="561" r="10" fill="#FFFFFF"/>
+
+  <text x="250" y="598" font-size="12" fill="#94A3B8">Blend 60%</text>
+  <rect x="250" y="608" width="315" height="8" rx="4" fill="rgba(0,0,0,0.4)"/>
+  <rect x="250" y="608" width="189" height="8" rx="4" fill="#06B6D4"/>
+  <circle cx="439" cy="612" r="7" fill="#FFFFFF"/>
+
+  <!-- Card 3: Cosmic Spatial Sphere -->
+  <rect x="611" y="362" width="369" height="278" rx="18" fill="url(#glass-card-bg)" stroke="rgba(255, 255, 255, 0.14)"/>
+  <text x="635" y="394" font-size="15" font-weight="700" fill="#FFFFFF">Cosmic 7.1 Spatial</text>
+  <text x="635" y="412" font-size="12" fill="#94A3B8">Acoustic space depth engine</text>
+
+  <!-- Ambient Orb Visualizer -->
+  <g transform="translate(795, 510)">
+    <circle cx="0" cy="0" r="75" fill="none" stroke="rgba(255,255,255,0.1)"/>
+    <circle cx="0" cy="0" r="55" fill="none" stroke="url(#cosmic-pill)" stroke-width="2" filter="url(#soft-glow)"/>
+    <circle cx="0" cy="0" r="30" fill="url(#glass-card-bg)" stroke="rgba(255,255,255,0.2)"/>
+    <text x="0" y="7" font-size="20" text-anchor="middle">🎧</text>
+
+    <!-- Glowing Speaker Points -->
+    <circle cx="-38" cy="-38" r="6" fill="#8B5CF6" filter="url(#soft-glow)"/>
+    <circle cx="0" cy="-55" r="6" fill="#06B6D4" filter="url(#soft-glow)"/>
+    <circle cx="38" cy="-38" r="6" fill="#8B5CF6" filter="url(#soft-glow)"/>
+    <circle cx="-55" cy="0" r="5" fill="#A78BFA"/>
+    <circle cx="55" cy="0" r="5" fill="#A78BFA"/>
+    <circle cx="-38" cy="38" r="5" fill="#06B6D4"/>
+    <circle cx="38" cy="38" r="5" fill="#06B6D4"/>
+  </g>
+  <text x="795" y="618" font-size="12" font-weight="600" fill="#C4B5FD" text-anchor="middle">Virtual Surround Enabled</text>
+</svg>

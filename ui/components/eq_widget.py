@@ -1,5 +1,7 @@
 """
-Modern 10-Band Parametric Equalizer Studio for ATK Neptune N9 with i18n support.
+Nordic Precision 10-Band Parametric DSP Equalizer for ATK Neptune N9.
+Features technical gridlines, stepped response polyline, square node markers,
+and monospace frequency readouts.
 """
 
 from typing import List, Dict
@@ -8,17 +10,17 @@ from PyQt6.QtWidgets import (
     QPushButton, QFrame, QButtonGroup, QScrollArea
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QPointF, QTimer, QRectF
-from PyQt6.QtGui import QPainter, QColor, QPen, QBrush, QPainterPath, QLinearGradient, QFont
+from PyQt6.QtGui import QPainter, QColor, QPen, QBrush, QPainterPath, QFont
 
 from atk_n9 import EQ_BANDS, PRESET_PROFILES
 from ui.i18n import I18N
 
 
 class EQCurveWidget(QWidget):
-    """Draws a professional audio studio curve visualization with dB scale and grid lines."""
+    """Draws a high-precision engineering DSP response grid with stepped polyline and square nodes."""
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setFixedHeight(110)
+        self.setFixedHeight(115)
         self.bands: List[int] = [0] * 10
 
     def set_bands(self, bands: List[int]):
@@ -33,27 +35,45 @@ class EQCurveWidget(QWidget):
         h = float(self.height())
         mid_y = h / 2.0
 
+        # Background canvas - flat carbon with sharp border
         bg_rect = QRectF(0, 0, w, h)
-        painter.setPen(QPen(QColor("#1E202B"), 1))
-        painter.setBrush(QBrush(QColor("#0E1015")))
-        painter.drawRoundedRect(bg_rect, 10, 10)
+        painter.setPen(QPen(QColor("#262634"), 1))
+        painter.setBrush(QBrush(QColor("#111114")))
+        painter.drawRoundedRect(bg_rect, 2, 2)
 
-        for db, y_pos in [("+20", 12.0), ("+10", (mid_y + 12.0) / 2.0), ("0", mid_y), ("-10", (mid_y + h - 12.0) / 2.0), ("-20", h - 12.0)]:
+        # Technical Grid lines & dB labels
+        grid_specs = [
+            ("+20", 12.0),
+            ("+10", (mid_y + 12.0) / 2.0),
+            ("0", mid_y),
+            ("-10", (mid_y + h - 12.0) / 2.0),
+            ("-20", h - 12.0)
+        ]
+
+        font = QFont("JetBrains Mono", 8)
+        font.setStyleHint(QFont.StyleHint.Monospace)
+        painter.setFont(font)
+
+        for db, y_pos in grid_specs:
             is_zero = (db == "0")
-            line_pen = QPen(QColor("#2C2F40") if is_zero else QColor("#1C1E28"), 1, Qt.PenStyle.DashLine if not is_zero else Qt.PenStyle.SolidLine)
+            line_pen = QPen(
+                QColor("#3A3A4C") if is_zero else QColor("#1C1C24"),
+                1,
+                Qt.PenStyle.SolidLine if is_zero else Qt.PenStyle.DashLine
+            )
             painter.setPen(line_pen)
-            painter.drawLine(35, int(y_pos), int(w - 10), int(y_pos))
+            painter.drawLine(42, int(y_pos), int(w - 12), int(y_pos))
 
-            painter.setPen(QColor("#52566C") if not is_zero else QColor("#00D2FF"))
-            painter.setFont(QFont("sans-serif", 8, QFont.Weight.Bold if is_zero else QFont.Weight.Normal))
-            painter.drawText(QRectF(4, y_pos - 7, 28, 14), Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, db)
+            painter.setPen(QColor("#FFFFFF") if is_zero else QColor("#666675"))
+            label_text = "0.0 dB" if is_zero else f"{db} dB"
+            painter.drawText(QRectF(2, y_pos - 7, 36, 14), Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, label_text)
 
         if len(self.bands) != 10:
             return
 
         points = []
-        plot_left = 40.0
-        plot_width = w - 50.0
+        plot_left = 50.0
+        plot_width = w - 64.0
         step_x = plot_width / 9.0
 
         for i, val in enumerate(self.bands):
@@ -62,46 +82,42 @@ class EQCurveWidget(QWidget):
             y = (h - 14.0) - norm * (h - 28.0)
             points.append(QPointF(x, y))
 
-        path = QPainterPath()
-        path.moveTo(plot_left, mid_y)
-        path.lineTo(points[0].x() * 0.7 + plot_left * 0.3, (mid_y + points[0].y()) * 0.5)
+        # Precision Stepped Polyline Curve
+        poly_path = QPainterPath()
+        poly_path.moveTo(plot_left, points[0].y())
+        for i in range(1, len(points)):
+            poly_path.lineTo(points[i].x(), points[i].y())
 
-        for i in range(len(points) - 1):
-            p0 = points[i]
-            p1 = points[i + 1]
-            c1 = QPointF((p0.x() + p1.x()) / 2.0, p0.y())
-            c2 = QPointF((p0.x() + p1.x()) / 2.0, p1.y())
-            path.cubicTo(c1, c2, p1)
-
-        last_p = points[-1]
-        path.lineTo(w - 10, (mid_y + last_p.y()) * 0.5)
-        path.lineTo(w - 10, mid_y)
-
-        fill_path = QPainterPath(path)
-        fill_path.lineTo(w - 10, h - 10)
-        fill_path.lineTo(plot_left, h - 10)
+        # Area under curve - technical hatched / subtle tint
+        fill_path = QPainterPath(poly_path)
+        fill_path.lineTo(points[-1].x(), mid_y)
+        fill_path.lineTo(plot_left, mid_y)
         fill_path.closeSubpath()
 
-        grad = QLinearGradient(0, 0, 0, h)
-        grad.setColorAt(0.0, QColor(0, 210, 255, 75))
-        grad.setColorAt(0.5, QColor(0, 210, 255, 25))
-        grad.setColorAt(1.0, QColor(0, 210, 255, 0))
-        painter.setBrush(QBrush(grad))
+        painter.setBrush(QBrush(QColor(255, 85, 0, 24)))
         painter.setPen(Qt.PenStyle.NoPen)
         painter.drawPath(fill_path)
 
-        painter.setPen(QPen(QColor("#00D2FF"), 2.2))
+        # Crisp Safety Orange response line
+        painter.setPen(QPen(QColor("#FF5500"), 2.0))
         painter.setBrush(Qt.BrushStyle.NoBrush)
-        painter.drawPath(path)
+        painter.drawPath(poly_path)
 
-        for p in points:
-            painter.setPen(QPen(QColor("#080A0E"), 1.8))
-            painter.setBrush(QBrush(QColor("#00F5A0")))
-            painter.drawEllipse(p, 4.0, 4.0)
+        # Square Technical Node Markers
+        for i, p in enumerate(points):
+            val = self.bands[i]
+            node_rect = QRectF(p.x() - 3.5, p.y() - 3.5, 7.0, 7.0)
+            if val != 0:
+                painter.setPen(QPen(QColor("#FFFFFF"), 1.0))
+                painter.setBrush(QBrush(QColor("#FF5500")))
+            else:
+                painter.setPen(QPen(QColor("#777785"), 1.0))
+                painter.setBrush(QBrush(QColor("#111114")))
+            painter.drawRect(node_rect)
 
 
 class EQSliderCol(QWidget):
-    """A vertical EQ band column with dynamic dB styling and frequency tag."""
+    """A vertical EQ band column with dynamic monospace dB styling and frequency tag."""
     sig_changed = pyqtSignal(int, int)
 
     def __init__(self, index: int, freq_label: str, parent=None):
@@ -128,18 +144,22 @@ class EQSliderCol(QWidget):
 
         self.freq_lbl = QLabel(freq_label)
         self.freq_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.freq_lbl.setStyleSheet("font-size: 11px; color: #7F8498; font-weight: 700;")
+        self.freq_lbl.setStyleSheet(
+            "font-size: 10px; color: #8A8D9C; font-weight: 700; "
+            "font-family: 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Ubuntu Mono', monospace;"
+        )
         layout.addWidget(self.freq_lbl)
 
     def _update_val_label(self, val: int):
         sign = "+" if val > 0 else ""
         self.val_lbl.setText(f"{sign}{val}")
+        mono_font = "font-family: 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Ubuntu Mono', monospace; "
         if val > 0:
-            self.val_lbl.setStyleSheet("font-size: 11px; font-weight: 800; color: #00D2FF;")
+            self.val_lbl.setStyleSheet(mono_font + "font-size: 10px; font-weight: 800; color: #FF5500;")
         elif val < 0:
-            self.val_lbl.setStyleSheet("font-size: 11px; font-weight: 700; color: #FFB800;")
+            self.val_lbl.setStyleSheet(mono_font + "font-size: 10px; font-weight: 700; color: #FFFFFF;")
         else:
-            self.val_lbl.setStyleSheet("font-size: 11px; font-weight: 600; color: #8F94A6;")
+            self.val_lbl.setStyleSheet(mono_font + "font-size: 10px; font-weight: 600; color: #6C6F7E;")
 
     def _on_slider_changed(self, val: int):
         self._update_val_label(val)
@@ -174,9 +194,12 @@ class EqualizerWidget(QFrame):
         header_layout = QHBoxLayout()
         title_box = QVBoxLayout()
         self.title_lbl = QLabel(I18N.t("eq_title"))
-        self.title_lbl.setStyleSheet("font-size: 14px; font-weight: 900; color: #FFFFFF; letter-spacing: 0.6px;")
+        self.title_lbl.setStyleSheet(
+            "font-size: 12px; font-weight: 900; color: #FFFFFF; letter-spacing: 1px; "
+            "font-family: 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Ubuntu Mono', monospace;"
+        )
         self.subtitle_lbl = QLabel(I18N.t("eq_subtitle"))
-        self.subtitle_lbl.setStyleSheet("font-size: 12px; color: #72768A;")
+        self.subtitle_lbl.setStyleSheet("font-size: 11px; color: #7D7F8E;")
         title_box.addWidget(self.title_lbl)
         title_box.addWidget(self.subtitle_lbl)
         header_layout.addLayout(title_box)
@@ -191,19 +214,19 @@ class EqualizerWidget(QFrame):
         main_layout.addLayout(header_layout)
 
         preset_layout = QHBoxLayout()
-        preset_layout.setSpacing(8)
+        preset_layout.setSpacing(6)
         self.preset_group = QButtonGroup(self)
         self.preset_group.setExclusive(True)
 
         presets = [
-            ("🎚 Flat", "flat"),
-            ("🎯 CS2", "cs2"),
-            ("⚡ Valorant 1", "valorant1"),
-            ("⚡ Valorant 2", "valorant2"),
-            ("🪂 PUBG", "pubg"),
-            ("🏹 Apex", "apex"),
-            ("🎵 Pop", "pop"),
-            ("🛡 Delta Force", "delta_force")
+            ("[DEFAULT_FLAT]", "flat"),
+            ("[FPS_CS2]", "cs2"),
+            ("[VALORANT_1]", "valorant1"),
+            ("[VALORANT_2]", "valorant2"),
+            ("[PUBG_COMBAT]", "pubg"),
+            ("[APEX_LEGENDS]", "apex"),
+            ("[POP_ACOUSTIC]", "pop"),
+            ("[DELTA_FORCE]", "delta_force")
         ]
 
         for idx, (label, key) in enumerate(presets):
@@ -223,9 +246,9 @@ class EqualizerWidget(QFrame):
         main_layout.addWidget(self.curve_canvas)
 
         sliders_box = QFrame()
-        sliders_box.setStyleSheet("background-color: #0E1015; border: 1px solid #1E202B; border-radius: 12px; padding: 10px 14px;")
+        sliders_box.setStyleSheet("background-color: #141419; border: 1px solid #242430; border-radius: 2px; padding: 10px 14px;")
         sliders_layout = QHBoxLayout(sliders_box)
-        sliders_layout.setContentsMargins(6, 6, 6, 6)
+        sliders_layout.setContentsMargins(4, 4, 4, 4)
         sliders_layout.setSpacing(4)
 
         self.slider_cols: List[EQSliderCol] = []

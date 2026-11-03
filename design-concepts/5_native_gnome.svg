@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 660" width="1000" height="660" style="background:#1E1E1E; font-family:'Cantarell', 'Ubuntu', system-ui, sans-serif;">
+  <!-- Window Container -->
+  <rect x="0" y="0" width="1000" height="660" rx="12" fill="#1E1E1E" stroke="#303030" stroke-width="1"/>
+
+  <!-- GNOME AdwHeaderBar -->
+  <rect x="0" y="0" width="1000" height="48" rx="12" fill="#242424"/>
+  <rect x="0" y="36" width="1000" height="12" fill="#242424"/>
+  <line x1="0" y1="48" x2="1000" y2="48" stroke="#333333" stroke-width="1"/>
+
+  <!-- Window Controls (GNOME Close Button Right) -->
+  <circle cx="975" cy="24" r="9" fill="#363636"/>
+  <text x="975" y="27" font-size="10" font-weight="700" fill="#A0A0A0" text-anchor="middle">✕</text>
+
+  <!-- Title Center -->
+  <text x="500" y="29" font-size="14" font-weight="700" fill="#FFFFFF" text-anchor="middle">ATK Neptune N9</text>
+
+  <!-- Headerbar Left Status Pill -->
+  <rect x="18" y="13" width="126" height="24" rx="12" fill="#303030"/>
+  <circle cx="30" cy="25" r="4" fill="#2EC27E"/>
+  <text x="42" y="29" font-size="11" font-weight="600" fill="#D0D0D0">Connected</text>
+
+  <!-- Headerbar Battery Right -->
+  <rect x="830" y="13" width="120" height="24" rx="12" fill="#303030"/>
+  <text x="842" y="29" font-size="12">🔋</text>
+  <text x="862" y="29" font-size="11" font-weight="600" fill="#FFFFFF">84% Battery</text>
+
+  <!-- Split View: Sidebar (AdwNavigationSplitView) -->
+  <rect x="0" y="48" width="220" height="612" fill="#242424"/>
+  <line x1="220" y1="48" x2="220" y2="660" stroke="#333333" stroke-width="1"/>
+
+  <!-- GNOME Sidebar List Items -->
+  <g transform="translate(12, 64)">
+    <!-- Dashboard (Active Row) -->
+    <rect x="0" y="0" width="196" height="38" rx="8" fill="#3584E4"/>
+    <text x="14" y="24" font-size="14" fill="#FFFFFF">📊</text>
+    <text x="40" y="24" font-size="13" font-weight="600" fill="#FFFFFF">Overview</text>
+
+    <!-- Equalizer -->
+    <rect x="0" y="44" width="196" height="38" rx="8" fill="transparent"/>
+    <text x="14" y="68" font-size="14" fill="#A0A0A0">🎚️</text>
+    <text x="40" y="68" font-size="13" font-weight="500" fill="#D0D0D0">Equalizer</text>
+
+    <!-- Microphone -->
+    <rect x="0" y="88" width="196" height="38" rx="8" fill="transparent"/>
+    <text x="14" y="112" font-size="14" fill="#A0A0A0">🎙️</text>
+    <text x="40" y="112" font-size="13" font-weight="500" fill="#D0D0D0">Microphone</text>
+
+    <!-- Spatial Surround -->
+    <rect x="0" y="132" width="196" height="38" rx="8" fill="transparent"/>
+    <text x="14" y="156" font-size="14" fill="#A0A0A0">🌐</text>
+    <text x="40" y="156" font-size="13" font-weight="500" fill="#D0D0D0">Surround Audio</text>
+
+    <!-- Settings -->
+    <rect x="0" y="176" width="196" height="38" rx="8" fill="transparent"/>
+    <text x="14" y="200" font-size="14" fill="#A0A0A0">⚙️</text>
+    <text x="40" y="200" font-size="13" font-weight="500" fill="#D0D0D0">Preferences</text>
+  </g>
+
+  <!-- Main Content Area: AdwPreferencesPage with Grouped Rows -->
+  <!-- Group 1: Equalizer Preferences Group -->
+  <text x="246" y="80" font-size="12" font-weight="700" fill="#9A9996" letter-spacing="0.5">EQUALIZER PRESETS</text>
+
+  <!-- Segmented Button Row (AdwViewSwitcher) -->
+  <rect x="246" y="94" width="720" height="36" rx="8" fill="#282828" stroke="#383838"/>
+  <rect x="426" y="96" width="180" height="32" rx="6" fill="#383838"/>
+  <text x="336" y="116" font-size="12" font-weight="600" fill="#A0A0A0" text-anchor="middle">Flat</text>
+  <text x="516" y="116" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle">CS2 Competitive</text>
+  <text x="696" y="116" font-size="12" font-weight="600" fill="#A0A0A0" text-anchor="middle">Valorant</text>
+  <text x="876" y="116" font-size="12" font-weight="600" fill="#A0A0A0" text-anchor="middle">Bass Boost</text>
+
+  <!-- Clean Grouped Card for EQ Curve -->
+  <rect x="246" y="142" width="720" height="150" rx="10" fill="#282828" stroke="#383838"/>
+  <!-- Minimalist Curve -->
+  <line x1="270" y1="217" x2="940" y2="217" stroke="#383838"/>
+  <path d="M 280 217 C 340 190, 420 170, 500 195 C 580 220, 660 230, 740 180 C 820 150, 880 160, 930 200" fill="none" stroke="#3584E4" stroke-width="2.5"/>
+  <circle cx="280" cy="217" r="4" fill="#3584E4"/>
+  <circle cx="500" cy="195" r="4" fill="#3584E4"/>
+  <circle cx="740" cy="180" r="4" fill="#3584E4"/>
+  <circle cx="820" cy="150" r="5" fill="#3584E4"/>
+  <circle cx="930" cy="200" r="4" fill="#3584E4"/>
+
+  <!-- Frequency Labels -->
+  <g transform="translate(246, 266)" font-size="10" fill="#9A9996" text-anchor="middle">
+    <text x="40" y="12">31Hz</text>
+    <text x="115" y="12">62Hz</text>
+    <text x="190" y="12">125Hz</text>
+    <text x="265" y="12">250Hz</text>
+    <text x="340" y="12">500Hz</text>
+    <text x="415" y="12">1kHz</text>
+    <text x="490" y="12">2kHz</text>
+    <text x="565" y="12">4kHz</text>
+    <text x="640" y="12">8kHz</text>
+    <text x="680" y="12">16kHz</text>
+  </g>
+
+  <!-- Group 2: Microphone & Audio Settings (Grouped AdwActionRow) -->
+  <text x="246" y="324" font-size="12" font-weight="700" fill="#9A9996" letter-spacing="0.5">AUDIO &amp; MICROPHONE</text>
+
+  <!-- Grouped Container -->
+  <rect x="246" y="338" width="720" height="294" rx="10" fill="#282828" stroke="#383838"/>
+
+  <!-- Row 1: Microphone Gain -->
+  <g transform="translate(266, 362)">
+    <text x="0" y="14" font-size="13" font-weight="600" fill="#FFFFFF">Microphone Gain</text>
+    <text x="0" y="30" font-size="11" fill="#9A9996">Hardware input sensitivity level</text>
+
+    <!-- Slider Right -->
+    <rect x="420" y="14" width="220" height="6" rx="3" fill="#383838"/>
+    <rect x="420" y="14" width="187" height="6" rx="3" fill="#3584E4"/>
+    <circle cx="607" cy="17" r="8" fill="#FFFFFF"/>
+    <text x="655" y="20" font-size="12" font-weight="600" fill="#FFFFFF">85%</text>
+  </g>
+  <line x1="246" y1="410" x2="966" y2="410" stroke="#333333"/>
+
+  <!-- Row 2: Live VU Meter Level -->
+  <g transform="translate(266, 430)">
+    <text x="0" y="14" font-size="13" font-weight="600" fill="#FFFFFF">Input Activity</text>
+    <text x="0" y="30" font-size="11" fill="#9A9996">Real-time PipeWire audio monitor</text>
+
+    <rect x="420" y="16" width="260" height="8" rx="4" fill="#383838"/>
+    <rect x="420" y="16" width="170" height="8" rx="4" fill="#2EC27E"/>
+  </g>
+  <line x1="246" y1="478" x2="966" y2="478" stroke="#333333"/>
+
+  <!-- Row 3: Hardware Sidetone Switch -->
+  <g transform="translate(266, 498)">
+    <text x="0" y="14" font-size="13" font-weight="600" fill="#FFFFFF">Hardware Sidetone</text>
+    <text x="0" y="30" font-size="11" fill="#9A9996">Real-time zero-latency mic loopback to headset</text>
+
+    <!-- GNOME Switch (ON) -->
+    <rect x="626" y="8" width="54" height="28" rx="14" fill="#3584E4"/>
+    <circle cx="666" cy="22" r="11" fill="#FFFFFF"/>
+  </g>
+  <line x1="246" y1="546" x2="966" y2="546" stroke="#333333"/>
+
+  <!-- Row 4: Virtual 7.1 Surround -->
+  <g transform="translate(266, 566)">
+    <text x="0" y="14" font-size="13" font-weight="600" fill="#FFFFFF">Virtual 7.1 Spatial Audio</text>
+    <text x="0" y="30" font-size="11" fill="#9A9996">Positional 360-degree virtual sound stage</text>
+
+    <!-- GNOME Switch (ON) -->
+    <rect x="626" y="8" width="54" height="28" rx="14" fill="#3584E4"/>
+    <circle cx="666" cy="22" r="11" fill="#FFFFFF"/>
+  </g>
+</svg>

@@ -1,6 +1,6 @@
 """
-Modern Animated Toggle Switch Widget for ATK Neptune N9.
-Mimics modern iOS / macOS / Gaming Software (G-Hub, Sonar) sliding pill switches.
+Nordic Precision Industrial Mechanical Toggle Switch Widget for ATK Neptune N9.
+Features sharp rectangular geometry, safety orange track, and tactile slide animation.
 """
 
 from PyQt6.QtWidgets import QWidget
@@ -11,16 +11,16 @@ from PyQt6.QtGui import QPainter, QColor, QBrush, QPen
 class ToggleSwitch(QWidget):
     toggled = pyqtSignal(bool)
 
-    def __init__(self, checked: bool = False, parent=None, width=46, height=24):
+    def __init__(self, checked: bool = False, parent=None, width=44, height=20):
         super().__init__(parent)
         self.setFixedSize(width, height)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self._checked = checked
-        self._thumb_pos = (height - 4) if checked else 0.0
+        self._thumb_pos = (width - height + 2) if checked else 0.0
 
-        # Animation for smooth sliding
+        # Animation for mechanical sliding
         self._anim = QPropertyAnimation(self, b"thumb_pos", self)
-        self._anim.setDuration(160)
+        self._anim.setDuration(120)
 
     @pyqtProperty(float)
     def thumb_pos(self):
@@ -37,7 +37,7 @@ class ToggleSwitch(QWidget):
     def setChecked(self, checked: bool):
         if self._checked != checked:
             self._checked = checked
-            target = (self.width() - self.height()) if checked else 0.0
+            target = (self.width() - self.height() + 2) if checked else 0.0
             self._anim.stop()
             self._anim.setStartValue(self._thumb_pos)
             self._anim.setEndValue(target)
@@ -54,28 +54,28 @@ class ToggleSwitch(QWidget):
 
         w = float(self.width())
         h = float(self.height())
-        radius = h / 2.0
 
-        # Background track
+        # Industrial rectangular track with subtle 2px bevel
         track_rect = QRectF(0, 0, w, h)
         if self._checked:
-            track_color = QColor("#00D2FF") # Vibrant Cyan when Active
-            border_color = QColor("#33DBFF")
+            track_color = QColor("#FF5500")
+            border_color = QColor("#FF6E24")
         else:
-            track_color = QColor("#222530") # Deep charcoal when Inactive
-            border_color = QColor("#313646")
+            track_color = QColor("#1A1A24")
+            border_color = QColor("#2E2E3E")
 
         painter.setPen(QPen(border_color, 1))
         painter.setBrush(QBrush(track_color))
-        painter.drawRoundedRect(track_rect, radius, radius)
+        painter.drawRoundedRect(track_rect, 2, 2)
 
-        # Sliding circular thumb
-        thumb_size = h - 6.0
+        # Tactile rectangular thumb
+        thumb_w = h - 6.0
+        thumb_h = h - 6.0
         thumb_x = 3.0 + self._thumb_pos
         thumb_y = 3.0
-        thumb_rect = QRectF(thumb_x, thumb_y, thumb_size, thumb_size)
+        thumb_rect = QRectF(thumb_x, thumb_y, thumb_w, thumb_h)
 
-        thumb_color = QColor("#0E1015") if self._checked else QColor("#A0A5B8")
+        thumb_color = QColor("#FFFFFF") if self._checked else QColor("#7A7D8E")
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(QBrush(thumb_color))
-        painter.drawEllipse(thumb_rect)
+        painter.drawRoundedRect(thumb_rect, 1, 1)

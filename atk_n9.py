@@ -9,6 +9,7 @@ import os
 import sys
 import glob
 import time
+import json
 import struct
 import select
 import termios
@@ -86,25 +87,30 @@ class SubCmd:
 def find_serial_port() -> Optional[str]:
     """Find the /dev/ttyACM* device corresponding to the ATK N9."""
     for p in sorted(glob.glob("/dev/serial/by-id/*")) + sorted(glob.glob("/dev/ttyACM*")):
-        real_path = Path(p).resolve()
-        # Look up parent USB VID/PID in sysfs
-        sys_device = Path("/sys/class/tty") / real_path.name / "device"
-        if not sys_device.exists():
+        try:
+            real_path = Path(p).resolve()
+            if not real_path.exists():
+                continue
+            # Look up parent USB VID/PID in sysfs
+            sys_device = Path("/sys/class/tty") / real_path.name / "device"
+            if not sys_device.exists():
+                continue
+            cur = sys_device.resolve()
+            while cur != cur.parent:
+                vid_file = cur / "idVendor"
+                pid_file = cur / "idProduct"
+                if vid_file.exists() and pid_file.exists():
+                    try:
+                        vid = int(vid_file.read_text().strip(), 16)
+                        pid = int(pid_file.read_text().strip(), 16)
+                        if (vid, pid) in SUPPORTED_DEVICES:
+                            return str(real_path)
+                    except (ValueError, OSError):
+                        pass
+                    break
+                cur = cur.parent
+        except (OSError, FileNotFoundError):
             continue
-        cur = sys_device.resolve()
-        while cur != cur.parent:
-            vid_file = cur / "idVendor"
-            pid_file = cur / "idProduct"
-            if vid_file.exists() and pid_file.exists():
-                try:
-                    vid = int(vid_file.read_text().strip(), 16)
-                    pid = int(pid_file.read_text().strip(), 16)
-                    if (vid, pid) in SUPPORTED_DEVICES:
-                        return str(real_path)
-                except ValueError:
-                    pass
-                break
-            cur = cur.parent
     return None
 
 
@@ -134,14 +140,29 @@ class ATKNeptuneN9:
         self.fd: Optional[int] = None
         self.rx_buffer = bytearray()
 
+    @property
+    def is_open(self) -> bool:
+        return self.fd is not None
+
     def connect(self):
+        if self.fd is not None:
+            self.disconnect()
         self.fd = os.open(self.port, os.O_RDWR | os.O_NOCTTY | os.O_NONBLOCK)
         configure_serial(self.fd)
+        self.rx_buffer.clear()
 
     def disconnect(self):
         if self.fd is not None:
-            os.close(self.fd)
+            try:
+                termios.tcflush(self.fd, termios.TCIOFLUSH)
+            except Exception:
+                pass
+            try:
+                os.close(self.fd)
+            except Exception:
+                pass
             self.fd = None
+        self.rx_buffer.clear()
 
     def __enter__(self):
         self.connect()
@@ -154,21 +175,35 @@ class ATKNeptuneN9:
         packets = []
         start = time.time()
         while time.time() - start < timeout:
-            r, _, _ = select.select([self.fd], [], [], 0.02)
+            if self.fd is None:
+                break
+            remaining = max(0.001, timeout - (time.time() - start))
+            r, _, x = select.select([self.fd], [], [self.fd], min(0.02, remaining))
+            if self.fd in x:
+                raise ConnectionResetError("Serial port exception/hangup")
             if self.fd in r:
-                chunk = os.read(self.fd, 64)
-                if chunk:
-                    self.rx_buffer.extend(chunk)
-                    while len(self.rx_buffer) >= 64:
-                        pkt = bytes(self.rx_buffer[:64])
-                        del self.rx_buffer[:64]
-                        packets.append(pkt)
+                try:
+                    chunk = os.read(self.fd, 64)
+                except OSError as e:
+                    raise ConnectionResetError(f"Serial read error: {e}")
+                
+                # Empty read on a readable file descriptor indicates hangup/disconnect (EOF)
+                if not chunk:
+                    raise ConnectionResetError("Serial device disconnected (EOF)")
+
+                self.rx_buffer.extend(chunk)
+                while len(self.rx_buffer) >= 64:
+                    pkt = bytes(self.rx_buffer[:64])
+                    del self.rx_buffer[:64]
+                    packets.append(pkt)
             else:
                 if not self.rx_buffer:
                     break
         return packets
 
-    def transfer(self, cmd: int, subcmd: int, data: Optional[List[int]] = None, expected_len: int = -1, timeout: float = 0.8) -> Tuple[Optional[bytes], List[bytes]]:
+    def transfer(self, cmd: int, subcmd: int, data: Optional[List[int]] = None, expected_len: int = -1, timeout: float = 0.3) -> Tuple[Optional[bytes], List[bytes]]:
+        if self.fd is None:
+            raise ConnectionResetError("Serial port is not open")
         if data is None:
             data = []
         pkt = bytearray(64)
@@ -179,15 +214,24 @@ class ATKNeptuneN9:
             pkt[3 + i] = val & 0xFF
         
         # Flush unhandled packets
-        self._read_packets(0.02)
-        os.write(self.fd, bytes(pkt))
+        try:
+            self._read_packets(0.01)
+        except ConnectionResetError:
+            raise
+        except Exception:
+            pass
+
+        try:
+            os.write(self.fd, bytes(pkt))
+        except OSError as e:
+            raise ConnectionResetError(f"Serial write error: {e}")
         
         start = time.time()
         async_events = []
         while time.time() - start < timeout:
-            packets = self._read_packets(0.05)
+            remaining = max(0.001, timeout - (time.time() - start))
+            packets = self._read_packets(min(0.05, remaining))
             for p in packets:
-                p_len = p[0]
                 p_cmd = p[1]
                 p_subcmd = p[2]
                 if p_cmd == cmd and p_subcmd == subcmd:
@@ -198,23 +242,22 @@ class ATKNeptuneN9:
 
     def get_status(self) -> Dict[str, Any]:
         """Check connection state between headset and dongle."""
-        res, _ = self.transfer(Cmd.AUTH, SubCmd.GET_STATUS)
-        if not res:
+        res, _ = self.transfer(Cmd.AUTH, SubCmd.GET_STATUS, timeout=0.25)
+        if not res or len(res) < 5:
             return {"connected": False, "error": "Timeout"}
-        return {"connected": res[4] == 1}
+        return {"connected": (res[4] == 1)}
 
     def get_battery(self) -> Dict[str, Any]:
         """Read battery level and charging status."""
-        res, _ = self.transfer(Cmd.AUTH, SubCmd.GET_BATTERY)
-        if not res:
-            return {"error": "Timeout"}
+        res, _ = self.transfer(Cmd.AUTH, SubCmd.GET_BATTERY, timeout=0.25)
+        if not res or len(res) < 5:
+            return {"error": "Timeout", "level": 0, "charging": False}
         raw_val = res[4]
         is_charging = (raw_val >> 7) == 1
         level = raw_val & 0x7F
         return {
             "level": level,
             "charging": is_charging,
-            "connected": True
         }
 
     def get_microphone_info(self) -> Dict[str, Any]:
@@ -299,6 +342,56 @@ class ATKNeptuneN9:
             "effect_name": effects.get(effect_id, "Unknown")
         }
 
+    def set_effect(self, effect_id: int) -> bool:
+        """Set voice changer effect (0: Male, 1: Female, 2: Monster, 3: Cartoon) or -1 for OFF."""
+        if effect_id == -1:
+            res, _ = self.transfer(Cmd.EFFECT, SubCmd.EFFECT_SET_RESET, [0])
+        else:
+            res, _ = self.transfer(Cmd.EFFECT, SubCmd.EFFECT_SET_ALL, [effect_id])
+        return res is not None
+
+
+def get_device_status_dict(dev: ATKNeptuneN9) -> dict:
+    """Retrieve full device telemetry and return formatted dictionary."""
+    status = dev.get_status()
+    batt = dev.get_battery()
+    mic = dev.get_microphone_info()
+    eq = dev.get_eq_profile()
+    surround = dev.get_surround()
+    effect = dev.get_effect()
+
+    connected = bool(status.get("connected", False))
+    level = batt.get("level", 0) if batt.get("level") is not None else 0
+    charging = bool(batt.get("charging", False))
+    mute = bool(mic.get("mute", False))
+
+    chg_tag = " (⚡)" if charging else ""
+    text_val = f"{level}%{chg_tag}" if connected else "N/A"
+    tooltip_val = f"ATK Neptune N9: {level}%{chg_tag} ({'Bağlı' if connected else 'Bağlantı Yok'})"
+    cls_val = "charging" if charging else ("connected" if connected else "disconnected")
+
+    return {
+        "connected": connected,
+        "battery": level,
+        "charging": charging,
+        "mic": {
+            "mute": mute,
+            "volume": mic.get("volume", 100),
+            "sidetone_enabled": bool(mic.get("sidetone_enabled", True)),
+            "sidetone_volume": mic.get("sidetone_volume", 100)
+        },
+        "audio": {
+            "surround_7_1": bool(surround.get("enabled", False)),
+            "effect": effect.get("effect_name", "OFF") if effect.get("enabled") else "OFF"
+        },
+        "eq_profile_id": eq.get("eq_id", 5),
+        "port": dev.port,
+        "text": text_val,
+        "percentage": level if connected else 0,
+        "tooltip": tooltip_val,
+        "class": cls_val
+    }
+
 
 def print_status(dev: ATKNeptuneN9):
     status = dev.get_status()
@@ -339,12 +432,19 @@ def print_status(dev: ATKNeptuneN9):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == "--help":
-        print("Usage: python3 atk_n9.py [status|sidetone on/off [vol]|preset <name>]")
+    if len(sys.argv) > 1 and sys.argv[1] in ("--help", "-h"):
+        print("Usage: python3 atk_n9.py [status|--json|sidetone on/off [vol]|preset <name>]")
         sys.exit(0)
+
+    is_json = "--json" in sys.argv or (len(sys.argv) > 1 and sys.argv[1].lower() == "json")
 
     try:
         with ATKNeptuneN9() as dev:
+            if is_json:
+                data = get_device_status_dict(dev)
+                print(json.dumps(data, indent=2, ensure_ascii=False))
+                sys.exit(0)
+
             if len(sys.argv) > 1:
                 cmd = sys.argv[1].lower()
                 if cmd == "status":
@@ -369,5 +469,13 @@ if __name__ == "__main__":
             else:
                 print_status(dev)
     except Exception as e:
-        print(f"Error: {e}")
+        if is_json:
+            print(json.dumps({
+                "connected": False,
+                "error": str(e),
+                "text": "N/A",
+                "class": "disconnected"
+            }))
+        else:
+            print(f"Error: {e}")
         sys.exit(1)

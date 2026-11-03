@@ -1,0 +1,199 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 660" width="1000" height="660" style="background:#0F0F12; font-family:'JetBrains Mono', 'Fira Code', 'Courier New', monospace;">
+  <!-- Window Container -->
+  <rect x="0" y="0" width="1000" height="660" rx="4" fill="#121215" stroke="#25252B" stroke-width="1"/>
+
+  <!-- Top Bar: Industrial Precision Grid Header -->
+  <rect x="0" y="0" width="1000" height="52" fill="#17171C"/>
+  <line x1="0" y1="52" x2="1000" y2="52" stroke="#282830" stroke-width="1"/>
+
+  <!-- Brand Title -->
+  <rect x="24" y="16" width="20" height="20" rx="2" fill="#FF5500"/>
+  <text x="34" y="31" font-size="12" font-weight="900" fill="#000000" text-anchor="middle">N9</text>
+  <text x="56" y="31" font-size="13" font-weight="800" fill="#FFFFFF" letter-spacing="2">ATK // NEPTUNE_N9</text>
+  <text x="230" y="31" font-size="11" fill="#70707D">[REV. PRO_ULTRA]</text>
+
+  <!-- Technical Telemetry Top Right -->
+  <g transform="translate(640, 16)" font-size="11">
+    <rect x="0" y="0" width="100" height="22" rx="2" fill="#1E1E24" stroke="#33333E"/>
+    <text x="10" y="15" fill="#A0A0B0">RF: </text>
+    <text x="36" y="15" font-weight="800" fill="#FF5500">2.4G_OK</text>
+
+    <rect x="112" y="0" width="100" height="22" rx="2" fill="#1E1E24" stroke="#33333E"/>
+    <text x="122" y="15" fill="#A0A0B0">BATT: </text>
+    <text x="162" y="15" font-weight="800" fill="#FFFFFF">84%</text>
+
+    <rect x="224" y="0" width="110" height="22" rx="2" fill="#1E1E24" stroke="#33333E"/>
+    <text x="234" y="15" fill="#A0A0B0">RATE: </text>
+    <text x="274" y="15" font-weight="800" fill="#FFFFFF">48kHz</text>
+  </g>
+
+  <!-- Sidebar -->
+  <rect x="0" y="52" width="210" height="608" fill="#141418"/>
+  <line x1="210" y1="52" x2="210" y2="660" stroke="#282830" stroke-width="1"/>
+
+  <!-- Nav Items (Numbered, stark, high technical density) -->
+  <g transform="translate(14, 76)">
+    <!-- 01 DASHBOARD (Active) -->
+    <rect x="0" y="0" width="182" height="38" rx="2" fill="#1F1F26" stroke="#FF5500" stroke-width="1"/>
+    <text x="12" y="24" font-size="11" font-weight="800" fill="#FF5500">01</text>
+    <text x="38" y="24" font-size="11" font-weight="700" fill="#FFFFFF" letter-spacing="1">DASHBOARD</text>
+
+    <!-- 02 EQUALIZER -->
+    <rect x="0" y="46" width="182" height="38" rx="2" fill="#17171C" stroke="#25252D"/>
+    <text x="12" y="70" font-size="11" font-weight="800" fill="#6A6A78">02</text>
+    <text x="38" y="70" font-size="11" font-weight="600" fill="#9090A0" letter-spacing="1">EQ MATRIX</text>
+
+    <!-- 03 MICROPHONE -->
+    <rect x="0" y="92" width="182" height="38" rx="2" fill="#17171C" stroke="#25252D"/>
+    <text x="12" y="116" font-size="11" font-weight="800" fill="#6A6A78">03</text>
+    <text x="38" y="116" font-size="11" font-weight="600" fill="#9090A0" letter-spacing="1">AUDIO INPUT</text>
+
+    <!-- 04 SPATIAL -->
+    <rect x="0" y="138" width="182" height="38" rx="2" fill="#17171C" stroke="#25252D"/>
+    <text x="12" y="162" font-size="11" font-weight="800" fill="#6A6A78">04</text>
+    <text x="38" y="162" font-size="11" font-weight="600" fill="#9090A0" letter-spacing="1">SPATIAL 7.1</text>
+
+    <!-- 05 CONFIG -->
+    <rect x="0" y="184" width="182" height="38" rx="2" fill="#17171C" stroke="#25252D"/>
+    <text x="12" y="208" font-size="11" font-weight="800" fill="#6A6A78">05</text>
+    <text x="38" y="208" font-size="11" font-weight="600" fill="#9090A0" letter-spacing="1">SYS SETTINGS</text>
+  </g>
+
+  <!-- Technical Spec Block Bottom Left -->
+  <rect x="14" y="550" width="182" height="88" rx="2" fill="#16161B" stroke="#24242C"/>
+  <text x="24" y="572" font-size="9" fill="#757585">DEVICE ID: 0x248A</text>
+  <text x="24" y="590" font-size="9" fill="#757585">ENDPOINT: /dev/ttyACM0</text>
+  <text x="24" y="608" font-size="9" fill="#757585">LATENCY: &lt;1.8 ms</text>
+  <text x="24" y="626" font-size="9" font-weight="800" fill="#FF5500">[STATUS: SYNCED]</text>
+
+  <!-- Main Area -->
+  <!-- Card 1: 10-Band Stepped Equalizer Grid -->
+  <rect x="234" y="74" width="742" height="268" rx="2" fill="#16161B" stroke="#292933"/>
+  <text x="254" y="100" font-size="12" font-weight="800" fill="#FFFFFF" letter-spacing="1.5">BLOCK_01 // 10-BAND PARAMETRIC DSP MATRIX</text>
+  <text x="690" y="100" font-size="11" fill="#FF5500">[PROFILE: FPS_ESPORTS_V1]</text>
+
+  <!-- Technical Grid Canvas -->
+  <rect x="254" y="116" width="702" height="130" fill="#111114" stroke="#262630"/>
+  <!-- Grid Dots & Hairlines -->
+  <line x1="254" y1="181" x2="956" y2="181" stroke="#353545" stroke-width="1"/>
+  <text x="264" y="177" font-size="9" fill="#888898">0.0 dB (REF)</text>
+  <line x1="254" y1="140" x2="956" y2="140" stroke="#1D1D26" stroke-dasharray="2,4"/>
+  <text x="264" y="136" font-size="9" fill="#555565">+12.0 dB</text>
+  <line x1="254" y1="222" x2="956" y2="222" stroke="#1D1D26" stroke-dasharray="2,4"/>
+  <text x="264" y="218" font-size="9" fill="#555565">-12.0 dB</text>
+
+  <!-- Stepped Orange Line -->
+  <polyline points="290,181 350,165 410,150 470,181 530,205 590,210 650,175 720,135 790,135 880,181" fill="none" stroke="#FF5500" stroke-width="2"/>
+  <!-- Square technical nodes -->
+  <rect x="286" y="177" width="8" height="8" fill="#111114" stroke="#FF5500" stroke-width="1.5"/>
+  <rect x="346" y="161" width="8" height="8" fill="#111114" stroke="#FF5500" stroke-width="1.5"/>
+  <rect x="406" y="146" width="8" height="8" fill="#FF5500"/>
+  <rect x="466" y="177" width="8" height="8" fill="#111114" stroke="#FF5500" stroke-width="1.5"/>
+  <rect x="526" y="201" width="8" height="8" fill="#111114" stroke="#FF5500" stroke-width="1.5"/>
+  <rect x="586" y="206" width="8" height="8" fill="#111114" stroke="#FF5500" stroke-width="1.5"/>
+  <rect x="646" y="171" width="8" height="8" fill="#111114" stroke="#FF5500" stroke-width="1.5"/>
+  <rect x="716" y="131" width="8" height="8" fill="#FF5500"/>
+  <rect x="786" y="131" width="8" height="8" fill="#FF5500"/>
+  <rect x="876" y="177" width="8" height="8" fill="#111114" stroke="#FF5500" stroke-width="1.5"/>
+
+  <!-- Fader readouts -->
+  <g transform="translate(254, 260)" font-size="10" fill="#FFFFFF">
+    <text x="36" y="16" text-anchor="middle" fill="#888898">31</text>
+    <text x="36" y="32" text-anchor="middle">0dB</text>
+
+    <text x="106" y="16" text-anchor="middle" fill="#888898">62</text>
+    <text x="106" y="32" text-anchor="middle">+2dB</text>
+
+    <text x="176" y="16" text-anchor="middle" fill="#888898">125</text>
+    <text x="176" y="32" text-anchor="middle" fill="#FF5500">+4dB</text>
+
+    <text x="246" y="16" text-anchor="middle" fill="#888898">250</text>
+    <text x="246" y="32" text-anchor="middle">0dB</text>
+
+    <text x="316" y="16" text-anchor="middle" fill="#888898">500</text>
+    <text x="316" y="32" text-anchor="middle">-3dB</text>
+
+    <text x="386" y="16" text-anchor="middle" fill="#888898">1k</text>
+    <text x="386" y="32" text-anchor="middle">-4dB</text>
+
+    <text x="456" y="16" text-anchor="middle" fill="#888898">2k</text>
+    <text x="456" y="32" text-anchor="middle">+1dB</text>
+
+    <text x="526" y="16" text-anchor="middle" fill="#888898">4k</text>
+    <text x="526" y="32" text-anchor="middle" fill="#FF5500">+6dB</text>
+
+    <text x="596" y="16" text-anchor="middle" fill="#888898">8k</text>
+    <text x="596" y="32" text-anchor="middle" fill="#FF5500">+6dB</text>
+
+    <text x="666" y="16" text-anchor="middle" fill="#888898">16k</text>
+    <text x="666" y="32" text-anchor="middle">0dB</text>
+  </g>
+
+  <!-- Bottom Row: Card 2 (Mic Array) & Card 3 (Spatial Matrix) -->
+  <!-- Card 2: Audio Input Module -->
+  <rect x="234" y="362" width="360" height="274" rx="2" fill="#16161B" stroke="#292933"/>
+  <text x="254" y="390" font-size="12" font-weight="800" fill="#FFFFFF" letter-spacing="1">BLOCK_02 // AUDIO_INPUT_MONITOR</text>
+
+  <!-- Technical Stepped Gain Fader -->
+  <text x="254" y="424" font-size="11" fill="#888898">ANALOG_GAIN_INDEX: [85 / 100]</text>
+  <rect x="254" y="434" width="320" height="4" fill="#242430"/>
+  <rect x="254" y="434" width="272" height="4" fill="#FF5500"/>
+  <rect x="522" y="428" width="8" height="16" fill="#FFFFFF"/>
+
+  <!-- Raw dBFS Peak Meter -->
+  <text x="254" y="474" font-size="10" fill="#888898">PEAK_LEVEL_dBFS [-60 ... 0]</text>
+  <rect x="254" y="484" width="320" height="12" fill="#101014" stroke="#252530"/>
+  <g transform="translate(256, 486)">
+    <!-- Discrete blocks -->
+    <rect x="0" y="0" width="8" height="8" fill="#555566"/>
+    <rect x="10" y="0" width="8" height="8" fill="#555566"/>
+    <rect x="20" y="0" width="8" height="8" fill="#555566"/>
+    <rect x="30" y="0" width="8" height="8" fill="#555566"/>
+    <rect x="40" y="0" width="8" height="8" fill="#555566"/>
+    <rect x="50" y="0" width="8" height="8" fill="#FF5500"/>
+    <rect x="60" y="0" width="8" height="8" fill="#FF5500"/>
+    <rect x="70" y="0" width="8" height="8" fill="#FF5500"/>
+    <rect x="80" y="0" width="8" height="8" fill="#FF5500"/>
+    <rect x="90" y="0" width="8" height="8" fill="#FF5500"/>
+    <rect x="100" y="0" width="8" height="8" fill="#FF5500"/>
+    <rect x="110" y="0" width="8" height="8" fill="#FF5500"/>
+    <rect x="120" y="0" width="8" height="8" fill="#FF5500"/>
+    <rect x="130" y="0" width="8" height="8" fill="#FF5500"/>
+    <rect x="140" y="0" width="8" height="8" fill="#FF5500"/>
+  </g>
+
+  <!-- Hardware Sidetone -->
+  <rect x="254" y="520" width="320" height="42" fill="#121216" stroke="#282834"/>
+  <text x="268" y="546" font-size="11" fill="#FFFFFF">SIDETONE: [ENGAGED]</text>
+  <rect x="490" y="530" width="70" height="22" fill="#FF5500"/>
+  <text x="525" y="545" font-size="10" font-weight="900" fill="#000000" text-anchor="middle">ACTIVE</text>
+
+  <text x="254" y="590" font-size="11" fill="#888898">MONITOR_GAIN: 60%</text>
+  <rect x="254" y="600" width="320" height="4" fill="#242430"/>
+  <rect x="254" y="600" width="192" height="4" fill="#FFFFFF"/>
+  <rect x="442" y="594" width="8" height="16" fill="#FF5500"/>
+
+  <!-- Card 3: Spatial Processor Matrix -->
+  <rect x="614" y="362" width="362" height="274" rx="2" fill="#16161B" stroke="#292933"/>
+  <text x="634" y="390" font-size="12" font-weight="800" fill="#FFFFFF" letter-spacing="1">BLOCK_03 // SPATIAL_DSP_MATRIX</text>
+
+  <!-- Polar Matrix Graph -->
+  <g transform="translate(795, 495)">
+    <!-- Concentric Technical Rings -->
+    <circle cx="0" cy="0" r="70" fill="none" stroke="#292938" stroke-width="1"/>
+    <circle cx="0" cy="0" r="45" fill="none" stroke="#20202C" stroke-width="1" stroke-dasharray="2,2"/>
+    <line x1="-75" y1="0" x2="75" y2="0" stroke="#292938"/>
+    <line x1="0" y1="-75" x2="0" y2="75" stroke="#292938"/>
+
+    <!-- Channel Markers -->
+    <rect x="-4" y="-4" width="8" height="8" fill="#FFFFFF"/>
+    <rect x="-45" y="-45" width="8" height="8" fill="#FF5500"/><text x="-56" y="-50" font-size="8" fill="#FF5500">CH_1</text>
+    <rect x="37" y="-45" width="8" height="8" fill="#FF5500"/><text x="48" y="-50" font-size="8" fill="#FF5500">CH_2</text>
+    <rect x="-4" y="-64" width="8" height="8" fill="#FF5500"/><text x="8" y="-60" font-size="8" fill="#FF5500">CENTER</text>
+    <rect x="-64" y="-4" width="8" height="8" fill="#888898"/><text x="-76" y="16" font-size="8" fill="#888898">SUR_L</text>
+    <rect x="56" y="-4" width="8" height="8" fill="#888898"/><text x="66" y="16" font-size="8" fill="#888898">SUR_R</text>
+  </g>
+
+  <rect x="634" y="590" width="322" height="30" fill="#111114" stroke="#292935"/>
+  <text x="795" y="610" font-size="10" font-weight="800" fill="#FF5500" text-anchor="middle">&gt;&gt; VIRTUAL_7.1_ENGINE: RUNNING &lt;&lt;</text>
+</svg>

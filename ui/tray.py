@@ -1,52 +1,57 @@
 """
 System Tray Manager for ATK Neptune N9 Linux Driver.
+Features Nordic Precision industrial square icon and monochrome/orange telemetry.
 """
 
 from PyQt6.QtWidgets import QSystemTrayIcon, QMenu, QApplication
 from PyQt6.QtGui import QIcon, QPixmap, QPainter, QColor, QFont
-from PyQt6.QtCore import pyqtSignal, QObject
+from PyQt6.QtCore import pyqtSignal, QObject, Qt
 from ui.i18n import I18N
 
 
 def create_tray_pixmap(level: int = 100, connected: bool = True) -> QPixmap:
-    """Generates an icon with battery color accent and level."""
+    """Generates an industrial square icon with level and status."""
     pix = QPixmap(32, 32)
-    pix.fill(QColor(0, 0, 0, 0)) # transparent
+    pix.fill(QColor(0, 0, 0, 0))
 
     painter = QPainter(pix)
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-    # Base circle / headset indicator
-    bg_color = QColor("#18191E")
+    # Base square indicator
+    bg_color = QColor("#14141A")
     painter.setBrush(bg_color)
-    painter.setPen(QColor("#2C2D35"))
-    painter.drawRoundedRect(2, 2, 28, 28, 6, 6)
+    painter.setPen(QColor("#2C2C3C"))
+    painter.drawRoundedRect(2, 2, 28, 28, 2, 2)
 
     if not connected:
         painter.setPen(QColor("#FF4B5C"))
-        painter.setFont(QFont("sans-serif", 10, QFont.Weight.Bold))
+        font = QFont("JetBrains Mono", 10, QFont.Weight.Bold)
+        font.setStyleHint(QFont.StyleHint.Monospace)
+        painter.setFont(font)
         painter.drawText(pix.rect(), 0x0084, "✕")
         painter.end()
         return pix
 
     # Color by level
-    if level > 40:
-        c = QColor("#00F5A0") # Green
+    if level > 35:
+        c = QColor("#FFFFFF")
     elif level > 15:
-        c = QColor("#FFB800") # Yellow
+        c = QColor("#FF5500")
     else:
-        c = QColor("#FF4B5C") # Red
+        c = QColor("#FF3344")
 
-    # Dot in top right
+    # Top-right indicator
     painter.setBrush(c)
-    painter.setPen(QColor("#000000"))
-    painter.drawEllipse(20, 4, 8, 8)
+    painter.setPen(Qt.PenStyle.NoPen)
+    painter.drawRect(20, 4, 7, 7)
 
-    # Headset symbol or percentage in center
+    # Monospace percentage / N9
     painter.setPen(QColor("#FFFFFF"))
-    painter.setFont(QFont("sans-serif", 8, QFont.Weight.Bold))
+    font = QFont("JetBrains Mono", 8, QFont.Weight.Bold)
+    font.setStyleHint(QFont.StyleHint.Monospace)
+    painter.setFont(font)
     txt = f"{level}" if level < 100 else "N9"
-    painter.drawText(2, 6, 26, 20, 0x0084, txt)
+    painter.drawText(2, 7, 26, 20, 0x0084, txt)
     painter.end()
     return pix
 
@@ -66,29 +71,31 @@ class TrayManager(QObject):
         self.tray.setIcon(QIcon(create_tray_pixmap(90, True)))
         self.tray.setToolTip(I18N.t("app_title"))
 
-        # Build context menu
+        # Build context menu with Nordic styling
         self.menu = QMenu()
         self.menu.setStyleSheet("""
             QMenu {
-                background-color: #18191E;
+                background-color: #16161D;
                 color: #FFFFFF;
-                border: 1px solid #2C2D35;
-                border-radius: 8px;
-                padding: 6px;
+                border: 1px solid #2A2A38;
+                border-radius: 2px;
+                padding: 4px;
+                font-family: 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Ubuntu Mono', monospace;
+                font-size: 11px;
             }
             QMenu::item {
-                padding: 6px 18px;
-                border-radius: 4px;
+                padding: 6px 16px;
+                border-radius: 2px;
             }
             QMenu::item:selected {
-                background-color: #00D2FF;
-                color: #0B0C0E;
-                font-weight: 600;
+                background-color: #FF5500;
+                color: #000000;
+                font-weight: 700;
             }
             QMenu::separator {
                 height: 1px;
-                background-color: #2C2D35;
-                margin: 4px 6px;
+                background-color: #282834;
+                margin: 4px 4px;
             }
         """)
 
@@ -125,7 +132,7 @@ class TrayManager(QObject):
         self.update_status(self._last_connected, self._last_battery, self._last_charging)
 
     def _on_tray_activated(self, reason):
-        if reason == QSystemTrayIcon.ActivationReason.Trigger: # Left click
+        if reason == QSystemTrayIcon.ActivationReason.Trigger:
             self.sig_show_window.emit()
 
     def update_status(self, connected: bool, battery: int = 0, charging: bool = False):
@@ -135,18 +142,15 @@ class TrayManager(QObject):
         self.tray.setIcon(QIcon(create_tray_pixmap(battery, connected)))
         if connected:
             chg = I18N.t("charging_tag") if charging else ""
-            self.battery_action.setText(f"{I18N.t('tray_battery')}%{battery}{chg}")
-            self.tray.setToolTip(f"ATK Neptune N9 - %{battery}{chg}")
+            self.battery_action.setText(f"{I18N.t('tray_battery')}{battery}%{chg}")
+            self.tray.setToolTip(f"ATK Neptune N9 - {battery}%{chg}")
         else:
             self.battery_action.setText(I18N.t("tray_disconnected"))
             self.tray.setToolTip(f"ATK Neptune N9 - {I18N.t('tray_disconnected')}")
 
     def show_message(self, title: str, message: str):
-        # Notifications disabled per user request
         pass
 
     def cleanup(self):
         if self.tray:
             self.tray.hide()
-            self.tray.setParent(None)
-

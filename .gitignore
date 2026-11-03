@@ -5,6 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
+!dsp/ladspa/*.so
 
 # Distribution / packaging
 build/
@@ -75,5 +76,7 @@ Thumbs.db
 
 # Logs and runtime IPC sockets
 *.log
+*.so
+!dsp/ladspa/*.so
 *.sock
 *.pid

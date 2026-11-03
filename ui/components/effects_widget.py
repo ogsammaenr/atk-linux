@@ -1,5 +1,6 @@
 """
-Modern Audio Effects & Spatial 7.1 Surround Visualizer for ATK Neptune N9 with i18n support.
+Nordic Precision Audio Effects & Spatial 7.1 Surround Polar Matrix for ATK Neptune N9.
+Features technical polar coordinate visualizer, square channel nodes, and monospace voice changer grid.
 """
 
 from PyQt6.QtWidgets import (
@@ -14,10 +15,10 @@ from ui.i18n import I18N
 
 
 class SurroundSpeakerVisualizer(QWidget):
-    """Draws a spatial 7.1 speaker diagram. Speakers glow when virtual surround is active."""
+    """Draws an engineering polar matrix 7.1 speaker diagram with crosshairs and square channel nodes."""
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setFixedHeight(120)
+        self.setFixedHeight(130)
         self.active = False
 
     def set_active(self, active: bool):
@@ -33,41 +34,62 @@ class SurroundSpeakerVisualizer(QWidget):
         cx = w / 2.0
         cy = h / 2.0
 
-        radius = 46.0
-        wave_color = QColor(0, 210, 255, 40) if self.active else QColor(40, 44, 58, 40)
-        painter.setPen(QPen(wave_color, 1.2, Qt.PenStyle.DashLine))
+        # Background polar matrix grid
+        axis_color = QColor("#282836")
+        painter.setPen(QPen(axis_color, 1.0, Qt.PenStyle.SolidLine))
+        painter.drawLine(int(cx - 75), int(cy), int(cx + 75), int(cy))
+        painter.drawLine(int(cx), int(cy - 52), int(cx), int(cy + 52))
+
+        ring_color = QColor("#FF5500" if self.active else "#22222E")
+        painter.setPen(QPen(ring_color, 1.0, Qt.PenStyle.DashLine if not self.active else Qt.PenStyle.SolidLine))
         painter.setBrush(Qt.BrushStyle.NoBrush)
-        painter.drawEllipse(QPointF(cx, cy), radius + 8, radius + 8)
+        painter.drawEllipse(QPointF(cx, cy), 52, 45)
+        painter.drawEllipse(QPointF(cx, cy), 32, 28)
 
-        painter.setPen(QPen(QColor("#00D2FF") if self.active else QColor("#5A5E72"), 1.5))
-        painter.setBrush(QBrush(QColor("#181924")))
-        painter.drawEllipse(QPointF(cx, cy), 14, 14)
+        # Center Operator Node
+        center_rect = QRectF(cx - 10, cy - 10, 20, 20)
+        painter.setPen(QPen(QColor("#FF5500") if self.active else QColor("#3B3B4C"), 1.0))
+        painter.setBrush(QBrush(QColor("#14141A")))
+        painter.drawRect(center_rect)
 
-        painter.setPen(QColor("#FFFFFF") if self.active else QColor("#8E92A4"))
+        painter.setPen(QColor("#FFFFFF") if self.active else QColor("#7A7D8E"))
         painter.setFont(QFont("sans-serif", 8, QFont.Weight.Bold))
-        painter.drawText(QRectF(cx - 14, cy - 14, 28, 28), Qt.AlignmentFlag.AlignCenter, "🎧")
+        painter.drawText(center_rect, Qt.AlignmentFlag.AlignCenter, "🎧")
 
+        # 8 Channels (FL, C, FR, SL, SR, RL, RR, LFE)
         speakers = [
-            ("FL", cx - 36, cy - 30),
-            ("C",  cx,      cy - 40),
-            ("FR", cx + 36, cy - 30),
-            ("SL", cx - 44, cy),
-            ("SR", cx + 44, cy),
-            ("RL", cx - 32, cy + 30),
-            ("RR", cx + 32, cy + 30),
+            ("FL", cx - 40, cy - 32),
+            ("C",  cx,      cy - 44),
+            ("FR", cx + 40, cy - 32),
+            ("SL", cx - 56, cy),
+            ("SR", cx + 56, cy),
+            ("RL", cx - 38, cy + 32),
+            ("RR", cx + 38, cy + 32),
+            ("LFE", cx,     cy + 44),
         ]
 
-        active_fill = QColor("#00D2FF")
-        inactive_fill = QColor("#222533")
+        active_fill = QColor("#FF5500")
+        inactive_fill = QColor("#1A1A24")
+
+        font = QFont("JetBrains Mono", 7)
+        font.setStyleHint(QFont.StyleHint.Monospace)
+        font.setWeight(QFont.Weight.Bold)
+        painter.setFont(font)
 
         for label, sx, sy in speakers:
-            painter.setPen(QPen(QColor("#00D2FF") if self.active else QColor("#313648"), 1))
-            painter.setBrush(QBrush(active_fill if self.active else inactive_fill))
-            painter.drawRoundedRect(QRectF(sx - 9, sy - 7, 18, 14), 3, 3)
+            spk_rect = QRectF(sx - 10, sy - 7, 20, 14)
+            if self.active:
+                painter.setPen(QPen(QColor("#FFFFFF"), 1.0))
+                painter.setBrush(QBrush(active_fill))
+                painter.drawRect(spk_rect)
+                painter.setPen(QColor("#000000"))
+            else:
+                painter.setPen(QPen(QColor("#2C2C3C"), 1.0))
+                painter.setBrush(QBrush(inactive_fill))
+                painter.drawRect(spk_rect)
+                painter.setPen(QColor("#787B8E"))
 
-            painter.setPen(QColor("#080A0E") if self.active else QColor("#6B7084"))
-            painter.setFont(QFont("sans-serif", 6, QFont.Weight.Bold))
-            painter.drawText(QRectF(sx - 9, sy - 7, 18, 14), Qt.AlignmentFlag.AlignCenter, label)
+            painter.drawText(spk_rect, Qt.AlignmentFlag.AlignCenter, label)
 
 
 class EffectsWidget(QFrame):
@@ -83,7 +105,7 @@ class EffectsWidget(QFrame):
 
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(18, 16, 18, 16)
-        main_layout.setSpacing(16)
+        main_layout.setSpacing(14)
 
         # 1. Section: 7.1 Virtual Surround
         surr_box = QFrame()
@@ -94,9 +116,12 @@ class EffectsWidget(QFrame):
         top_row = QHBoxLayout()
         info_box = QVBoxLayout()
         self.stitle = QLabel(I18N.t("surround_title"))
-        self.stitle.setStyleSheet("font-size: 13px; font-weight: 800; color: #FFFFFF;")
+        self.stitle.setStyleSheet(
+            "font-size: 11px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.8px; "
+            "font-family: 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Ubuntu Mono', monospace;"
+        )
         self.sdesc = QLabel(I18N.t("surround_desc"))
-        self.sdesc.setStyleSheet("font-size: 11px; color: #72768A;")
+        self.sdesc.setStyleSheet("font-size: 11px; color: #7D7F8E;")
         info_box.addWidget(self.stitle)
         info_box.addWidget(self.sdesc)
         top_row.addLayout(info_box)
@@ -104,9 +129,12 @@ class EffectsWidget(QFrame):
         top_row.addStretch()
 
         sw_box = QHBoxLayout()
-        sw_box.setSpacing(10)
+        sw_box.setSpacing(8)
         self.surr_status_lbl = QLabel(I18N.t("surround_off"))
-        self.surr_status_lbl.setStyleSheet("font-size: 12px; font-weight: 700; color: #6E7284;")
+        self.surr_status_lbl.setStyleSheet(
+            "font-size: 11px; font-weight: 700; color: #626574; "
+            "font-family: 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Ubuntu Mono', monospace;"
+        )
         self.surr_switch = ToggleSwitch(checked=False)
         self.surr_switch.toggled.connect(self._on_surr_toggled)
         sw_box.addWidget(self.surr_status_lbl)
@@ -127,14 +155,17 @@ class EffectsWidget(QFrame):
         vc_layout.setSpacing(12)
 
         self.vtitle = QLabel(I18N.t("voice_changer_title"))
-        self.vtitle.setStyleSheet("font-size: 13px; font-weight: 800; color: #FFFFFF;")
+        self.vtitle.setStyleSheet(
+            "font-size: 11px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.8px; "
+            "font-family: 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Ubuntu Mono', monospace;"
+        )
         self.vdesc = QLabel(I18N.t("voice_changer_desc"))
-        self.vdesc.setStyleSheet("font-size: 11px; color: #72768A;")
+        self.vdesc.setStyleSheet("font-size: 11px; color: #7D7F8E;")
         vc_layout.addWidget(self.vtitle)
         vc_layout.addWidget(self.vdesc)
 
         effects_grid = QGridLayout()
-        effects_grid.setSpacing(10)
+        effects_grid.setSpacing(8)
 
         self.effect_group = QButtonGroup(self)
         self.effect_group.setExclusive(True)
@@ -187,12 +218,13 @@ class EffectsWidget(QFrame):
 
     def _update_surr_style(self, enabled: bool):
         self.speaker_viz.set_active(enabled)
+        mono_font = "font-family: 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Ubuntu Mono', monospace; "
         if enabled:
             self.surr_status_lbl.setText(I18N.t("surround_on"))
-            self.surr_status_lbl.setStyleSheet("font-size: 12px; font-weight: 800; color: #00D2FF;")
+            self.surr_status_lbl.setStyleSheet(mono_font + "font-size: 11px; font-weight: 800; color: #FF5500;")
         else:
             self.surr_status_lbl.setText(I18N.t("surround_off"))
-            self.surr_status_lbl.setStyleSheet("font-size: 12px; font-weight: 600; color: #6E7284;")
+            self.surr_status_lbl.setStyleSheet(mono_font + "font-size: 11px; font-weight: 600; color: #626574;")
 
     def _on_effect_clicked(self, eff_id: int):
         self.active_effect_id = eff_id

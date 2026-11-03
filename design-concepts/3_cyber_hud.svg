@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 660" width="1000" height="660" style="background:#05070B; font-family:'Inter', system-ui, sans-serif;">
+  <defs>
+    <linearGradient id="cyber-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00F0FF"/>
+      <stop offset="100%" stop-color="#FF2E63"/>
+    </linearGradient>
+    <linearGradient id="cyber-glow-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(0, 240, 255, 0.15)"/>
+      <stop offset="100%" stop-color="rgba(255, 46, 99, 0.0)"/>
+    </linearGradient>
+    <filter id="neon-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Chamfered Window Container -->
+  <polygon points="0,0 970,0 1000,30 1000,660 30,660 0,630" fill="#090C14" stroke="#1A263D" stroke-width="1.5"/>
+
+  <!-- Top Bar -->
+  <polygon points="0,0 970,0 1000,30 1000,56 0,56" fill="#0D121F"/>
+  <line x1="0" y1="56" x2="1000" y2="56" stroke="#00F0FF" stroke-width="1.2" stroke-opacity="0.6"/>
+
+  <!-- Chamfered Brand Badge -->
+  <polygon points="20,12 180,12 195,44 20,44" fill="#141E33" stroke="#00F0FF" stroke-width="1"/>
+  <text x="32" y="32" font-size="13" font-weight="900" fill="#00F0FF" letter-spacing="2">/// ATK NEPTUNE</text>
+  <text x="146" y="32" font-size="11" font-weight="900" fill="#FF2E63">N9</text>
+
+  <!-- HUD Telemetry Badges (Hex / Cut) -->
+  <g transform="translate(680, 14)">
+    <polygon points="0,0 120,0 130,26 10,26" fill="#111A2C" stroke="#00F0FF" stroke-width="1"/>
+    <circle cx="22" cy="13" r="4" fill="#00F0FF" filter="url(#neon-glow)"/>
+    <text x="34" y="17" font-size="10" font-weight="800" fill="#FFFFFF" letter-spacing="1">LINK: 2.4G SECURE</text>
+
+    <polygon points="145,0 285,0 295,26 155,26" fill="#111A2C" stroke="#FF2E63" stroke-width="1"/>
+    <text x="175" y="17" font-size="10" font-weight="900" fill="#FF2E63" letter-spacing="1">PWR: 84% [ONLINE]</text>
+  </g>
+
+  <!-- Sidebar -->
+  <polygon points="0,56 210,56 210,660 30,660 0,630" fill="#0B0F1A"/>
+  <line x1="210" y1="56" x2="210" y2="660" stroke="#162238" stroke-width="1"/>
+
+  <!-- Tactical Nav Buttons -->
+  <g transform="translate(14, 76)">
+    <!-- Active Nav Tab -->
+    <polygon points="0,0 170,0 182,38 0,38" fill="url(#cyber-glow-bg)" stroke="#00F0FF" stroke-width="1.2"/>
+    <line x1="0" y1="0" x2="0" y2="38" stroke="#00F0FF" stroke-width="4"/>
+    <text x="24" y="24" font-size="11" font-weight="900" fill="#00F0FF" letter-spacing="1.5">&gt; TACTICAL RADAR</text>
+
+    <!-- Nav 2 -->
+    <polygon points="0,48 170,48 182,86 0,86" fill="#0F1524" stroke="#1D2A44" stroke-width="1"/>
+    <text x="24" y="72" font-size="11" font-weight="700" fill="#889BB8" letter-spacing="1">&gt; FREQ WARPER (EQ)</text>
+
+    <!-- Nav 3 -->
+    <polygon points="0,96 170,96 182,134 0,134" fill="#0F1524" stroke="#1D2A44" stroke-width="1"/>
+    <text x="24" y="120" font-size="11" font-weight="700" fill="#889BB8" letter-spacing="1">&gt; COMMS ARRAY</text>
+
+    <!-- Nav 4 -->
+    <polygon points="0,144 170,144 182,182 0,182" fill="#0F1524" stroke="#1D2A44" stroke-width="1"/>
+    <text x="24" y="168" font-size="11" font-weight="700" fill="#889BB8" letter-spacing="1">&gt; DSP EFFECT MATRIX</text>
+
+    <!-- Nav 5 -->
+    <polygon points="0,192 170,192 182,230 0,230" fill="#0F1524" stroke="#1D2A44" stroke-width="1"/>
+    <text x="24" y="216" font-size="11" font-weight="700" fill="#889BB8" letter-spacing="1">&gt; CORE SYSTEMS</text>
+  </g>
+
+  <!-- HUD Corner Crosshairs & Tech Decals -->
+  <text x="24" y="580" font-size="9" fill="#00F0FF" letter-spacing="1">TACTICAL AUDIO DRIVER</text>
+  <text x="24" y="600" font-size="9" fill="#586E94">SYS://LINUX_NATIVE_ACM0</text>
+  <text x="24" y="620" font-size="9" fill="#FF2E63">MODULE ENGAGED</text>
+
+  <!-- Main Area -->
+  <!-- Card 1: Freq Warper (EQ) -->
+  <polygon points="234,74 960,74 976,90 976,334 234,334" fill="#0E1322" stroke="#1A2845" stroke-width="1.2"/>
+  <text x="254" y="104" font-size="13" font-weight="900" fill="#00F0FF" letter-spacing="2">/// HARDWARE FREQUENCY WARPING MATRIX</text>
+
+  <!-- Tactical Presets -->
+  <g transform="translate(620, 88)">
+    <polygon points="0,0 90,0 100,24 0,24" fill="#FF2E63"/>
+    <text x="14" y="16" font-size="10" font-weight="900" fill="#FFFFFF">CS2 COMBAT</text>
+
+    <polygon points="110,0 210,0 220,24 110,24" fill="#141C30" stroke="#00F0FF"/>
+    <text x="124" y="16" font-size="10" font-weight="800" fill="#00F0FF">VALORANT</text>
+  </g>
+
+  <!-- Neon Grid Canvas -->
+  <rect x="254" y="124" width="702" height="130" fill="#070A12" stroke="#17233D"/>
+  <line x1="254" y1="189" x2="956" y2="189" stroke="#00F0FF" stroke-opacity="0.3"/>
+  <line x1="254" y1="150" x2="956" y2="150" stroke="#141C30" stroke-dasharray="4,4"/>
+  <line x1="254" y1="228" x2="956" y2="228" stroke="#141C30" stroke-dasharray="4,4"/>
+
+  <!-- Jagged Tactical Frequency Path -->
+  <path d="M 280 189 L 340 160 L 410 145 L 480 190 L 550 220 L 620 225 L 690 170 L 760 130 L 830 135 L 920 189" fill="none" stroke="#FF2E63" stroke-width="2.5" filter="url(#neon-glow)"/>
+  <!-- Diamond Points -->
+  <polygon points="280,185 284,189 280,193 276,189" fill="#00F0FF"/>
+  <polygon points="340,156 344,160 340,164 336,160" fill="#00F0FF"/>
+  <polygon points="410,141 414,145 410,149 406,145" fill="#FF2E63"/>
+  <polygon points="760,126 764,130 760,134 756,130" fill="#00F0FF" filter="url(#neon-glow)"/>
+  <polygon points="830,131 834,135 830,139 826,135" fill="#00F0FF" filter="url(#neon-glow)"/>
+
+  <!-- Frequency Fader readouts -->
+  <g transform="translate(254, 270)" font-size="9" font-weight="800" fill="#00F0FF" text-anchor="middle">
+    <text x="36" y="14">31HZ</text>
+    <text x="106" y="14">62HZ</text>
+    <text x="176" y="14">125HZ</text>
+    <text x="246" y="14">250HZ</text>
+    <text x="316" y="14">500HZ</text>
+    <text x="386" y="14">1KHZ</text>
+    <text x="456" y="14">2KHZ</text>
+    <text x="526" y="14">4KHZ</text>
+    <text x="596" y="14">8KHZ</text>
+    <text x="666" y="14">16KHZ</text>
+  </g>
+  <g transform="translate(254, 295)">
+    <!-- Small Chamfered Indicators -->
+    <polygon points="20,0 52,0 60,18 20,18" fill="#152035"/>
+    <text x="38" y="13" font-size="10" font-weight="900" fill="#FFFFFF" text-anchor="middle">0dB</text>
+
+    <polygon points="160,0 192,0 200,18 160,18" fill="#FF2E63"/>
+    <text x="178" y="13" font-size="10" font-weight="900" fill="#FFFFFF" text-anchor="middle">+4dB</text>
+
+    <polygon points="510,0 542,0 550,18 510,18" fill="#00F0FF"/>
+    <text x="528" y="13" font-size="10" font-weight="900" fill="#05070B" text-anchor="middle">+6dB</text>
+  </g>
+
+  <!-- Bottom Row: Card 2 & Card 3 -->
+  <!-- Card 2: Tactical Comms -->
+  <polygon points="234,354 580,354 594,368 594,636 234,636" fill="#0E1322" stroke="#1A2845" stroke-width="1.2"/>
+  <text x="254" y="384" font-size="13" font-weight="900" fill="#00F0FF" letter-spacing="1.5">/// COMMS INPUT CONTROLLER</text>
+
+  <text x="254" y="420" font-size="11" font-weight="700" fill="#889BB8">TRANSMIT GAIN: 85%</text>
+  <rect x="254" y="432" width="310" height="6" fill="#070A12"/>
+  <rect x="254" y="432" width="263" height="6" fill="url(#cyber-grad)"/>
+  <polygon points="517,428 523,435 517,442 511,435" fill="#00F0FF" filter="url(#neon-glow)"/>
+
+  <!-- Audio Waveform / Gate Display -->
+  <text x="254" y="470" font-size="10" font-weight="800" fill="#FF2E63">SPECTRAL GATE: OPEN</text>
+  <rect x="254" y="480" width="310" height="24" fill="#080C14" stroke="#152136"/>
+  <!-- Waveform spikes -->
+  <g transform="translate(260, 492)" stroke="#00F0FF" stroke-width="2">
+    <line x1="0" y1="-2" x2="0" y2="2"/>
+    <line x1="8" y1="-6" x2="8" y2="6"/>
+    <line x1="16" y1="-9" x2="16" y2="9" stroke="#FF2E63"/>
+    <line x1="24" y1="-4" x2="24" y2="4"/>
+    <line x1="32" y1="-1" x2="32" y2="1"/>
+    <line x1="40" y1="-7" x2="40" y2="7"/>
+    <line x1="48" y1="-10" x2="48" y2="10" stroke="#FF2E63"/>
+    <line x1="56" y1="-5" x2="56" y2="5"/>
+    <line x1="64" y1="-3" x2="64" y2="3"/>
+  </g>
+
+  <!-- Hardware Sidetone -->
+  <text x="254" y="540" font-size="11" font-weight="700" fill="#889BB8">SIDETONE RADAR LOOPBACK</text>
+  <polygon points="494,526 564,526 574,548 504,548" fill="#00F0FF"/>
+  <text x="534" y="542" font-size="10" font-weight="900" fill="#000000" text-anchor="middle">ACTIVE</text>
+
+  <rect x="254" y="574" width="310" height="6" fill="#070A12"/>
+  <rect x="254" y="574" width="186" height="6" fill="#00F0FF"/>
+  <polygon points="440,570 446,577 440,584 434,577" fill="#FFFFFF"/>
+
+  <!-- Card 3: 360 Tactical Sonar Radar -->
+  <polygon points="614,354 960,354 976,368 976,636 614,636" fill="#0E1322" stroke="#1A2845" stroke-width="1.2"/>
+  <text x="634" y="384" font-size="13" font-weight="900" fill="#00F0FF" letter-spacing="1.5">/// 360° SONAR SPATIAL RADAR</text>
+
+  <!-- Radar Area -->
+  <g transform="translate(795, 510)">
+    <!-- Rotating crosshairs & rings -->
+    <circle cx="0" cy="0" r="80" fill="none" stroke="#19253D" stroke-width="1"/>
+    <circle cx="0" cy="0" r="50" fill="none" stroke="#00F0FF" stroke-opacity="0.2" stroke-dasharray="6,4"/>
+    <circle cx="0" cy="0" r="20" fill="#090E17" stroke="#FF2E63" stroke-width="1.5"/>
+
+    <!-- Sonar Sweep Sector -->
+    <path d="M 0 0 L 56 -56 A 80 80 0 0 1 80 0 Z" fill="url(#cyber-glow-bg)"/>
+
+    <!-- Target Dots with Rings -->
+    <!-- Front Left Enemy -->
+    <circle cx="-42" cy="-42" r="5" fill="#FF2E63" filter="url(#neon-glow)"/>
+    <circle cx="-42" cy="-42" r="9" fill="none" stroke="#FF2E63" stroke-width="1"/>
+    <text x="-56" y="-54" font-size="8" font-weight="900" fill="#FF2E63">TARGET_01</text>
+
+    <!-- Rear Right Sound Blip -->
+    <circle cx="48" cy="48" r="4" fill="#00F0FF" filter="url(#neon-glow)"/>
+    <text x="56" y="60" font-size="8" font-weight="900" fill="#00F0FF">FOOTSTEPS</text>
+  </g>
+  <text x="795" y="620" font-size="10" font-weight="900" fill="#00F0FF" text-anchor="middle">&gt; SPATIAL POSITIONING ACTIVE &lt;</text>
+</svg>

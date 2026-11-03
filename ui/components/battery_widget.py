@@ -1,19 +1,20 @@
 """
-Ultra-Modern Battery and Connection Indicator Badge for ATK Neptune N9 with i18n.
+Nordic Precision Industrial Battery & Telemetry Widget for ATK Neptune N9.
+Displays discrete stepped segment levels, technical status indicators, and monospace readouts.
 """
 
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QFrame
 from PyQt6.QtCore import Qt, QRectF
-from PyQt6.QtGui import QPainter, QColor, QPen, QBrush, QFont, QLinearGradient
+from PyQt6.QtGui import QPainter, QColor, QPen, QBrush, QFont
 
 from ui.i18n import I18N
 
 
 class BatteryIconWidget(QWidget):
-    """Draws a high-precision, sleek battery pill with glowing level fill and charging bolt."""
+    """Draws an industrial 5-segment discrete battery gauge."""
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setFixedSize(48, 22)
+        self.setFixedSize(54, 18)
         self.level = 0
         self.charging = False
         self.connected = False
@@ -28,46 +29,50 @@ class BatteryIconWidget(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-        body_rect = QRectF(1.5, 3.5, 38, 15)
-        cap_rect = QRectF(40.5, 7.5, 2.5, 7)
+        # Body & Cap
+        body_rect = QRectF(1.0, 1.0, 46.0, 16.0)
+        cap_rect = QRectF(48.0, 5.0, 3.0, 8.0)
 
-        border_color = QColor("#313444") if not self.connected else QColor("#454A5E")
-        painter.setPen(QPen(border_color, 1.2))
-        painter.setBrush(QBrush(QColor("#14151E")))
-        painter.drawRoundedRect(body_rect, 4, 4)
-        painter.drawRoundedRect(cap_rect, 1.5, 1.5)
+        border_color = QColor("#38384A") if self.connected else QColor("#282834")
+        painter.setPen(QPen(border_color, 1.0))
+        painter.setBrush(QBrush(QColor("#14141A")))
+        painter.drawRoundedRect(body_rect, 1.5, 1.5)
+        painter.drawRoundedRect(cap_rect, 1.0, 1.0)
 
         if not self.connected:
             return
 
+        # Discrete 5 segments
+        # 1-20%: 1, 21-40%: 2, 41-60%: 3, 61-80%: 4, 81-100%: 5
+        num_active = max(1 if self.level > 0 else 0, min(5, (self.level + 19) // 20))
+
         if self.charging:
-            c1, c2 = QColor("#00E5FF"), QColor("#0099FF")
+            active_color = QColor("#FF5500")
         elif self.level > 35:
-            c1, c2 = QColor("#00F5A0"), QColor("#00C875")
+            active_color = QColor("#FFFFFF")
         elif self.level > 15:
-            c1, c2 = QColor("#FFB800"), QColor("#FF8C00")
+            active_color = QColor("#FF5500")
         else:
-            c1, c2 = QColor("#FF3366"), QColor("#D60036")
+            active_color = QColor("#FF3344")
 
-        avail_width = body_rect.width() - 4.0
-        fill_width = max(0.0, avail_width * (self.level / 100.0))
-        if fill_width > 0:
-            fill_rect = QRectF(3.5, 5.5, fill_width, 11)
-            grad = QLinearGradient(fill_rect.topLeft(), fill_rect.bottomRight())
-            grad.setColorAt(0.0, c1)
-            grad.setColorAt(1.0, c2)
-            painter.setPen(Qt.PenStyle.NoPen)
-            painter.setBrush(QBrush(grad))
-            painter.drawRoundedRect(fill_rect, 2.5, 2.5)
+        seg_width = 7.0
+        seg_height = 10.0
+        seg_y = 4.0
 
-        if self.charging:
-            painter.setPen(QPen(QColor("#0E1015"), 1.2))
-            painter.setFont(QFont("sans-serif", 9, QFont.Weight.Bold))
-            painter.drawText(QRectF(11, 2, 16, 16), Qt.AlignmentFlag.AlignCenter, "⚡")
+        for i in range(5):
+            seg_x = 4.0 + (i * 8.2)
+            seg_rect = QRectF(seg_x, seg_y, seg_width, seg_height)
+            if i < num_active:
+                painter.setPen(Qt.PenStyle.NoPen)
+                painter.setBrush(QBrush(active_color))
+            else:
+                painter.setPen(Qt.PenStyle.NoPen)
+                painter.setBrush(QBrush(QColor("#20202A")))
+            painter.drawRoundedRect(seg_rect, 1.0, 1.0)
 
 
 class BatteryStatusWidget(QFrame):
-    """Header status bar component with Connection Status, Low Latency Tag, and Battery Info."""
+    """Header status bar component with Industrial Connection Status and Monospace Telemetry."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setStyleSheet("background: transparent; border: none;")
@@ -77,9 +82,9 @@ class BatteryStatusWidget(QFrame):
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(10)
+        layout.setSpacing(8)
 
-        self.latency_lbl = QLabel("1000Hz • 2.4G")
+        self.latency_lbl = QLabel("RF: 2.4G_OK | 1000Hz")
         self.latency_lbl.setProperty("class", "badge-latency")
         layout.addWidget(self.latency_lbl)
 
@@ -91,7 +96,10 @@ class BatteryStatusWidget(QFrame):
         layout.addWidget(self.icon_widget)
 
         self.text_lbl = QLabel("--%")
-        self.text_lbl.setStyleSheet("font-size: 13px; font-weight: 800; color: #FFFFFF; min-width: 38px;")
+        self.text_lbl.setStyleSheet(
+            "font-size: 11px; font-weight: 800; color: #FFFFFF; min-width: 44px; "
+            "font-family: 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Ubuntu Mono', monospace;"
+        )
         layout.addWidget(self.text_lbl)
 
         I18N.sig_language_changed.connect(lambda: self.retranslate())
@@ -108,20 +116,22 @@ class BatteryStatusWidget(QFrame):
             self.badge_lbl.setText(I18N.t("connected_badge"))
             self.badge_lbl.setProperty("class", "badge-connected")
             self.badge_lbl.setStyleSheet(
-                "background-color: rgba(0, 245, 160, 0.12); color: #00F5A0; "
-                "border: 1px solid rgba(0, 245, 160, 0.35); border-radius: 12px; "
-                "padding: 4px 12px; font-size: 11px; font-weight: 700;"
+                "background-color: #1A1A24; color: #00F5A0; "
+                "border: 1px solid #282838; border-radius: 2px; "
+                "padding: 3px 8px; font-size: 10px; font-weight: 700; "
+                "font-family: 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Ubuntu Mono', monospace;"
             )
             self.latency_lbl.show()
             chg_str = I18N.t("charging_tag") if self.charging else ""
-            self.text_lbl.setText(f"%{self.level}{chg_str}")
+            self.text_lbl.setText(f"{self.level}%{chg_str}")
         else:
             self.badge_lbl.setText(I18N.t("disconnected_badge"))
             self.badge_lbl.setProperty("class", "badge-disconnected")
             self.badge_lbl.setStyleSheet(
-                "background-color: rgba(255, 51, 102, 0.12); color: #FF3366; "
-                "border: 1px solid rgba(255, 51, 102, 0.35); border-radius: 12px; "
-                "padding: 4px 12px; font-size: 11px; font-weight: 700;"
+                "background-color: #1A1A24; color: #FF4B5C; "
+                "border: 1px solid #282838; border-radius: 2px; "
+                "padding: 3px 8px; font-size: 10px; font-weight: 700; "
+                "font-family: 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Ubuntu Mono', monospace;"
             )
             self.latency_lbl.hide()
             self.text_lbl.setText("--%")
